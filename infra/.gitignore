@@ -1,0 +1,21 @@
+# Environment files with secrets
+.env
+
+# API keys and secrets
+*.key
+*.pem
+
+# Logs
+*.log
+
+# Local overrides
+.env.local
+docker-compose.override.yml
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

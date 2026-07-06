@@ -1,0 +1,34 @@
+# Telegram Bot Docker Compose Configuration
+# Version: 1.0
+#
+# Deploy:
+#   docker compose -f docker-compose.telegram.yml up -d
+#
+# Check:
+#   docker compose -f docker-compose.telegram.yml logs -f
+#
+# Stop:
+#   docker compose -f docker-compose.telegram.yml down
+
+services:
+  # ============================================================================
+  # Telegram Bot Service
+  # ============================================================================
+  prompt-review-telegram:
+    build:
+      context: ../api
+      dockerfile: ../infra/Dockerfile.telegram
+    container_name: prompt-review-telegram
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Override API URL for Docker network
+      - PROMPT_REVIEW_API_URL=http://prompt-review-api:8000
+    networks:
+      - n8n_default
+
+networks:
+  n8n_default:
+    external: true
+    name: n8n_default

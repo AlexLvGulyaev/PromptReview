@@ -1,0 +1,82 @@
+# LangFlow Docker Compose Configuration
+# Version: 1.0
+# Architecture Decision Record: LANGFLOW_APL_INTEGRATION_PLAN.md
+#
+# Deploy:
+#   docker compose -f docker-compose.langflow.yml up -d
+#
+# Check:
+#   docker compose -f docker-compose.langflow.yml logs -f
+
+services:
+  # ============================================================================
+  # LangFlow - AI Flow Platform
+  # ============================================================================
+  langflow:
+    # Pinned version: Contains MissingGreenlet fix (PR #6258) + security fixes
+    # Research: task-history/2026-07-04_langflow-version-research.md
+    image: langflowai/langflow:1.10.1
+    container_name: prompt-review-langflow
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "7860:7860"
+    volumes:
+      - langflow-data:/app/langflow
+    networks:
+      - langflow-network
+      - n8n_default
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:7860/health_check || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================================================
+  # PostgreSQL - Persistence Layer
+  # ============================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: prompt-review-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-langflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: langflow
+    volumes:
+      - langflow-postgres:/var/lib/postgresql/data
+    networks:
+      - langflow-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-langflow} -d langflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+# ============================================================================
+# Networks
+# ============================================================================
+networks:
+  langflow-network:
+    driver: bridge
+    name: langflow-network
+  n8n_default:
+    external: true
+    name: n8n_default
+
+# ============================================================================
+# Volumes
+# ============================================================================
+volumes:
+  langflow-data:
+    name: prompt-review-langflow-data
+  langflow-postgres:
+    name: prompt-review-langflow-postgres

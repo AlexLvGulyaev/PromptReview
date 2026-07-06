@@ -1,0 +1,1 @@
+{"detail":[{"type":"string_too_short","loc":["body","prompt_text"],"msg":"String should have at least 10 characters","input":"","ctx":{"min_length":10}}]}

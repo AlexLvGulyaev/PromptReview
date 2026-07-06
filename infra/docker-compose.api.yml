@@ -1,0 +1,39 @@
+# FastAPI Docker Compose Configuration
+# Version: 1.0
+#
+# Deploy:
+#   docker compose -f docker-compose.api.yml up -d
+#
+# Check:
+#   docker compose -f docker-compose.api.yml logs -f
+#
+# Stop:
+#   docker compose -f docker-compose.api.yml down
+
+services:
+  # ============================================================================
+  # Prompt Review FastAPI Service
+  # ============================================================================
+  prompt-review-api:
+    build:
+      context: ../api
+      dockerfile: ../infra/Dockerfile.api
+    container_name: prompt-review-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    networks:
+      - n8n_default
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  n8n_default:
+    external: true
+    name: n8n_default

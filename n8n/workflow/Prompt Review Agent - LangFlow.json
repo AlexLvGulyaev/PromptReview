@@ -1,0 +1,107 @@
+{
+  "name": "Prompt Review Agent - LangFlow",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "36721986-8954-472a-add3-9b6df5a4a3f7",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        16,
+        -96
+      ],
+      "webhookId": "560cad1a-7d5c-43ae-818e-1ff432e4cae4",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://langflow.alex-n8n.site/api/v1/run/eaa36f47-604c-4c62-902b-d4c84ffde61a?stream=false",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n  input_value: JSON.stringify({\n    request_id: $execution.id,\n    source: 'n8n-chat',\n    review_mode: 'standard',\n    prompt_text: $json.chatInput\n  }),\n  input_type: 'chat',\n  output_type: 'chat'\n}\n}}",
+        "options": {}
+      },
+      "id": "52ffc829-730c-4c32-b248-cfb728e91e8d",
+      "name": "Langflow",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        224,
+        -96
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "VsLuR0qMiQz0J3p6",
+          "name": "LangFlow API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.outputs[0].outputs[0].results.message.text\n  ?? $json.outputs[0].outputs[0].results.message.data?.text\n  ?? $json.outputs[0].outputs[0].messages?.[0]?.message;\n\nconst cleaned = raw\n  .replace(/^```json\\s*/i, '')\n  .replace(/^```\\s*/i, '')\n  .replace(/```$/i, '')\n  .trim();\n\nreturn [{ json: JSON.parse(cleaned) }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        -96
+      ],
+      "id": "e5678c16-cddc-49f9-a23c-280b1bcb7f10",
+      "name": "Parse LangFlow Response"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Langflow": {
+      "main": [
+        [
+          {
+            "node": "Parse LangFlow Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Langflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "506fa8dd-c085-4217-9720-333f641b08bb",
+  "meta": {
+    "instanceId": "459d700c4d3ea9df0b9dbe57d77ff97afbecd67db60fe901cb9d66accc63fb7f"
+  },
+  "id": "uSBiPzFlOV9T0jcp",
+  "tags": []
+}

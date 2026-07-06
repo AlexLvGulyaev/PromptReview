@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Review — AI-сервис анализа качества промптов</title>
+    <meta name="description" content="Анализируйте качество промптов для AI-моделей. Получите оценки, рекомендации и улучшенную редакцию.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header__brand">
+                <svg class="header__logo" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 4l-12 8v16h24v-16l-12-8z"/>
+                    <path d="M16 12v8"/>
+                    <circle cx="16" cy="16" r="2"/>
+                </svg>
+                <div class="header__title-group">
+                    <h1 class="header__title">Prompt Review</h1>
+                    <p class="header__subtitle">AI-сервис анализа качества промптов</p>
+                </div>
+            </div>
+            <div class="header__status">
+                <div class="status-indicator" id="status-indicator"></div>
+                <span class="status-text" id="status-text">Проверка статуса...</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Input Section -->
+            <section class="input-section">
+                <div class="input-card">
+                    <h2 class="input-card__title">Анализ промпта</h2>
+                    <p class="input-card__description">
+                        Отправьте текст, и я проанализирую, является ли он промптом и насколько он хорош.
+                        Получите оценки по критериям, рекомендации и улучшенную редакцию.
+                    </p>
+
+                    <div class="input-form">
+                        <textarea
+                            id="prompt-input"
+                            class="input-textarea"
+                            placeholder="Введите текст для анализа...&#10;&#10;Пример промпта:&#10;Ты — опытный маркетолог. Напиши пост для Instagram о запуске нового продукта. Включи: заголовок, 3 ключевых преимущества, призыв к действию. Тон: энергичный, но профессиональный."
+                            maxlength="10000"
+                            aria-label="Текст для анализа"
+                        ></textarea>
+                        <div class="input-footer">
+                            <div class="input-counter">
+                                <span id="char-count">0</span> / 10,000 символов
+                            </div>
+                            <button id="analyze-btn" class="analyze-btn" type="button">
+                                <svg class="btn-icon" viewBox="0 0 20 20" fill="none">
+                                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16z" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M10 6v4M10 14h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span class="btn-text">Проанализировать</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Loading Section -->
+            <section class="loading-section" id="loading-section" style="display: none;">
+                <div class="loading-card">
+                    <div class="loading-spinner"></div>
+                    <p class="loading-text">Анализирую текст...</p>
+                </div>
+            </section>
+
+            <!-- Error Section -->
+            <section class="error-section" id="error-section" style="display: none;">
+                <div class="error-card">
+                    <svg class="error-icon" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M10 6v4M10 14h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <h3 class="error-title">Ошибка</h3>
+                    <p class="error-message" id="error-message"></p>
+                    <button class="error-retry-btn" id="error-retry-btn">Попробовать снова</button>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section" id="results-section" style="display: none;">
+                <!-- Not a Prompt Result -->
+                <div id="not-prompt-result" style="display: none;">
+                    <div class="result-card not-prompt">
+                        <div class="result-header">
+                            <div class="result-icon not-prompt-icon">❓</div>
+                            <div>
+                                <h3 class="result-title">Текст не распознан как промпт</h3>
+                                <p class="result-subtitle" id="not-prompt-reason"></p>
+                            </div>
+                        </div>
+
+                        <!-- Metrics -->
+                        <div class="metrics-section">
+                            <h4 class="section-title">📊 Метрики текста</h4>
+                            <div class="metrics-grid">
+                                <div class="metric-item">
+                                    <span class="metric-label">Символов</span>
+                                    <span class="metric-value" id="not-prompt-chars">0</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-label">Слов</span>
+                                    <span class="metric-value" id="not-prompt-words">0</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-label">Строк</span>
+                                    <span class="metric-value" id="not-prompt-lines">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Conversion Options -->
+                        <div class="conversion-section">
+                            <h4 class="section-title">🔄 Варианты преобразования в промпт</h4>
+                            <ul class="conversion-list" id="conversion-list"></ul>
+                        </div>
+
+                        <div class="processing-time" id="not-prompt-time"></div>
+                    </div>
+                </div>
+
+                <!-- Prompt Result -->
+                <div id="prompt-result" style="display: none;">
+                    <!-- Quality Overview -->
+                    <div class="result-card quality-card" id="quality-card">
+                        <div class="result-header">
+                            <div class="result-icon" id="quality-icon">📊</div>
+                            <div>
+                                <h3 class="result-title">Анализ промпта</h3>
+                                <p class="result-subtitle" id="quality-subtitle"></p>
+                            </div>
+                            <div class="quality-badge" id="quality-badge">
+                                <span class="quality-label">Качество:</span>
+                                <span class="quality-value" id="quality-value">—</span>
+                            </div>
+                        </div>
+
+                        <!-- Purpose -->
+                        <div class="purpose-section" id="purpose-section">
+                            <h4 class="section-title">🎯 Назначение</h4>
+                            <p class="purpose-text" id="purpose-text"></p>
+                        </div>
+
+                        <!-- Scores -->
+                        <div class="scores-section">
+                            <h4 class="section-title">📈 Оценки по критериям</h4>
+                            <div class="scores-grid" id="scores-grid"></div>
+                            <div class="overall-score">
+                                <span class="overall-label">Общая оценка:</span>
+                                <span class="overall-value" id="overall-score">—</span>
+                            </div>
+                        </div>
+
+                        <div class="processing-time" id="prompt-time"></div>
+                    </div>
+
+                    <!-- Strengths & Weaknesses -->
+                    <div class="analysis-grid">
+                        <!-- Strengths -->
+                        <div class="result-card strengths-card">
+                            <h4 class="card-title">
+                                <span class="card-icon">✅</span>
+                                Сильные стороны
+                            </h4>
+                            <ul class="analysis-list" id="strengths-list"></ul>
+                        </div>
+
+                        <!-- Weaknesses -->
+                        <div class="result-card weaknesses-card">
+                            <h4 class="card-title">
+                                <span class="card-icon">⚠️</span>
+                                Слабые стороны
+                            </h4>
+                            <ul class="analysis-list" id="weaknesses-list"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Recommendations -->
+                    <div class="result-card recommendations-card">
+                        <h4 class="card-title">
+                            <span class="card-icon">💡</span>
+                            Рекомендации
+                        </h4>
+                        <ul class="recommendations-list" id="recommendations-list"></ul>
+                    </div>
+
+                    <!-- Improved Prompt -->
+                    <div class="result-card improved-card" id="improved-section">
+                        <div class="improved-header">
+                            <h4 class="card-title">
+                                <span class="card-icon">📝</span>
+                                Улучшенная редакция
+                            </h4>
+                            <button class="copy-btn" id="copy-btn" title="Копировать">
+                                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="6" y="6" width="10" height="12" rx="1"/>
+                                    <path d="M4 14V4a1 1 0 011-1h8"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <pre class="improved-prompt" id="improved-prompt"></pre>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="footer__text">
+                <span class="footer__brand">Prompt Review Service</span>
+                <span class="footer__separator">•</span>
+                <span>AI Automation Portfolio Lab</span>
+            </p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

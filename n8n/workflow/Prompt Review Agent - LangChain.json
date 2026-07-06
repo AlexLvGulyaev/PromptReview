@@ -1,0 +1,123 @@
+{
+  "name": "Prompt Review Agent - LangChain",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "1a9ae4f2-badb-4ed2-b2bf-c3591a488ba9",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        752,
+        320
+      ],
+      "typeVersion": 1.1,
+      "webhookId": "560cad1a-7d5c-43ae-818e-1ff432e4cae4"
+    },
+    {
+      "parameters": {
+        "code": {
+          "execute": {
+            "code": "/**\n * Prompt Review Agent - LangChain Code for n8n\n * Второй сценарий PEl05: n8n + LangChain\n *\n * Конвейер обработки:\n * 1. extractInput - извлечение текста\n * 2. collectPromptMetrics - расчёт метрик\n * 3. classifyPrompt - классификация текста\n * 4. reviewPrompt - анализ качества (если is_prompt = true)\n * 5. rewritePrompt - улучшение редакции (если is_prompt = true)\n * 6. composeResult - формирование итогового JSON\n */\n\n// ============================================================================\n// УТИЛИТЫ\n// ============================================================================\nconst { ChatPromptTemplate } = require(\"@langchain/core/prompts\");\n/**\n * Универсальная функция парсинга JSON-ответа от LLM\n */\nfunction parseJsonResponse(response) {\n  try {\n    const content = response.content || response;\n    let cleaned = content\n      .replace(/^```json\\s*/i, '')\n      .replace(/^```\\s*/i, '')\n      .replace(/```$/i, '')\n      .trim();\n    return JSON.parse(cleaned);\n  } catch (error) {\n    throw new Error(`Failed to parse JSON response: ${error.message}\\nOriginal response: ${JSON.stringify(response)}`);\n  }\n}\n\n/**\n * Генерация уникального ID запроса\n */\nfunction generateRequestId() {\n  return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;\n}\n\n// ============================================================================\n// 1. EXTRACT INPUT\n// ============================================================================\n\nfunction extractInput(inputData) {\n  const textFieldNames = ['chatInput', 'message', 'text', 'prompt_text', 'promptText'];\n  let promptText = null;\n\n  for (const field of textFieldNames) {\n    if (inputData[field] && typeof inputData[field] === 'string') {\n      promptText = inputData[field];\n      break;\n    }\n  }\n\n  if (!promptText) {\n    throw new Error('No valid text field found in input. Expected: chatInput, message, text, prompt_text, or promptText');\n  }\n\n  return {\n    request_id: generateRequestId(),\n    source: inputData.source || 'n8n-chat',\n    review_mode: inputData.review_mode || 'standard',\n    prompt_text: promptText\n  };\n}\n\n// ============================================================================\n// 2. COLLECT PROMPT METRICS\n// ============================================================================\n\nfunction collectPromptMetrics(promptText) {\n  const lines = promptText.split('\\n');\n  const nonEmptyLines = lines.filter(line => line.trim().length > 0);\n  const words = promptText.match(/\\b[\\wА-Яа-яЁё-]+\\b/g) || [];\n  const markdownHeadings = lines.filter(line => line.trim().startsWith('#'));\n  const bulletItems = lines.filter(line => /^\\s*(-|\\*|\\+)\\s+/.test(line));\n  const numberedItems = lines.filter(line => /^\\s*\\d+[\\.)]\\s+/.test(line));\n  const markdownTables = lines.filter(line => line.includes('|') && line.trim().startsWith('|'));\n  const xmlTags = promptText.match(/<\\/?[A-Za-z_][A-Za-z0-9_-]*>/g) || [];\n  const codeBlocks = (promptText.match(/```/g) || []).length / 2;\n  const maxLineLength = lines.reduce((max, line) => Math.max(max, line.length), 0);\n  const avgLineLength = nonEmptyLines.length > 0\n    ? Math.round(nonEmptyLines.reduce((sum, line) => sum + line.length, 0) / nonEmptyLines.length)\n    : 0;\n\n  return {\n    characters: promptText.length,\n    words: words.length,\n    lines: lines.length,\n    non_empty_lines: nonEmptyLines.length,\n    markdown_headings: markdownHeadings.length,\n    bullet_items: bulletItems.length,\n    numbered_items: numberedItems.length,\n    markdown_table_lines: markdownTables.length,\n    xml_tags: xmlTags.length,\n    code_blocks: Math.floor(codeBlocks),\n    max_line_length: maxLineLength,\n    avg_line_length: avgLineLength\n  };\n}\n\n// ============================================================================\n// 3. CLASSIFY PROMPT\n// ============================================================================\n\nconst CLASSIFIER_PROMPT = `Ты — классификатор текстов.\nТвоя задача — определить, является ли входной текст промптом для языковой модели.\n\nПромпт — это инструкция или описание задачи, предназначенные для выполнения языковой моделью.\n\nПризнаки промпта:\n- Присутствие ролевых инструкций (\"Ты —...\", \"Act as...\")\n- Описание задачи или действий\n- Указание формата результата\n- Условия и ограничения\n- Примеры или шаблоны\n\nПризнаки НЕ промпта:\n- Обычный разговорный текст\n- Вопрос без контекста задачи\n- Описание ситуации без инструкции\n- Повествовательный текст\n- Фактическое утверждение\n\nПроанализируй следующий текст и верни СТРОГО JSON без markdown:\n\n{format_instructions}\n\nТекст для анализа:\n{prompt_text}`;\n\nconst CLASSIFIER_FORMAT_INSTRUCTIONS = `{\n  \"is_prompt\": boolean,\n  \"reason\": \"строка с объяснением решения\",\n  \"confidence\": число от 0 до 1\n}`;\n\nasync function classifyPrompt(llm, request) {\n  const prompt = ChatPromptTemplate.fromTemplate(CLASSIFIER_PROMPT);\n  const chain = prompt.pipe(llm);\n  const response = await chain.invoke({\n    prompt_text: request.prompt_text,\n    format_instructions: CLASSIFIER_FORMAT_INSTRUCTIONS\n  });\n  const result = parseJsonResponse(response);\n  return {\n    is_prompt: result.is_prompt || false,\n    reason: result.reason || 'Не удалось определить',\n    confidence: result.confidence || 0.5\n  };\n}\n\n// ============================================================================\n// 4. REVIEW PROMPT\n// ============================================================================\n\nconst REVIEW_PROMPT = `Ты — Prompt Review Agent.\nТвоя задача — анализировать качество промптов.\n\nВсегда отвечай на русском языке.\n\nМетрики промпта (для справки):\n{metrics}\n\n{format_instructions}\n\nПромпт для анализа:\n{prompt_text}`;\n\nconst REVIEW_FORMAT_INSTRUCTIONS = `{\n  \"purpose\": \"краткое описание назначения промпта\",\n  \"strengths\": [\"список сильных сторон\"],\n  \"weaknesses\": [\"список недостатков\"],\n  \"recommendations\": [\"список рекомендаций по улучшению\"],\n  \"scores\": {\n    \"clarity\": число от 0 до 10,\n    \"completeness\": число от 0 до 10,\n    \"ambiguity_absence\": число от 0 до 10,\n    \"target_audience_fit\": число от 0 до 10,\n    \"output_format\": число от 0 до 10,\n    \"constraints_quality\": число от 0 до 10,\n    \"missing_assumptions\": число от 0 до 10,\n    \"structure_reusability\": число от 0 до 10,\n    \"overall\": число от 0 до 10\n  },\n  \"quality_level\": \"один из: excellent, good, acceptable, weak, unusable\"\n}`;\n\nasync function reviewPrompt(llm, request, metrics) {\n  const prompt = ChatPromptTemplate.fromTemplate(REVIEW_PROMPT);\n  const chain = prompt.pipe(llm);\n  const response = await chain.invoke({\n    prompt_text: request.prompt_text,\n    metrics: JSON.stringify(metrics, null, 2),\n    format_instructions: REVIEW_FORMAT_INSTRUCTIONS\n  });\n  return parseJsonResponse(response);\n}\n\n// ============================================================================\n// 5. REWRITE PROMPT\n// ============================================================================\n\nconst REWRITER_PROMPT = `Ты — Prompt Engineer.\nТвоя задача — подготовить улучшенную редакцию промпта.\n\nПравила:\n- Максимально сохраняй исходные формулировки пользователя\n- Изменяй только те фрагменты, которые требуют улучшения\n- Сохрани первоначальную цель промпта\n- Сохрани целевую аудиторию\n- Не меняй бизнес-смысл задачи\n- Не добавляй новые требования без объективной необходимости\n\nИсходный промпт:\n{prompt_text}\n\nЗамечания по качеству:\n{weaknesses}\n\nРекомендации:\n{recommendations}\n\nВерни СТРОГО JSON без markdown:\n{format_instructions}`;\n\nconst REWRITER_FORMAT_INSTRUCTIONS = `{\n  \"revised_prompt\": \"улучшенная редакция промпта\"\n}`;\n\nasync function rewritePrompt(llm, request, reviewResult) {\n  const prompt = ChatPromptTemplate.fromTemplate(REWRITER_PROMPT);\n  const chain = prompt.pipe(llm);\n  const response = await chain.invoke({\n    prompt_text: request.prompt_text,\n    weaknesses: reviewResult.weaknesses.join('\\n'),\n    recommendations: reviewResult.recommendations.join('\\n'),\n    format_instructions: REWRITER_FORMAT_INSTRUCTIONS\n  });\n  const result = parseJsonResponse(response);\n  return result.revised_prompt;\n}\n\n// ============================================================================\n// 6. COMPOSER\n// ============================================================================\n\nfunction composeResult(request, metrics, reviewResult, revisedPrompt) {\n  return {\n    request_id: request.request_id,\n    is_prompt: true,\n    purpose: reviewResult.purpose,\n    strengths: reviewResult.strengths,\n    weaknesses: reviewResult.weaknesses,\n    recommendations: reviewResult.recommendations,\n    scores: reviewResult.scores,\n    quality_level: reviewResult.quality_level,\n    revised_prompt: revisedPrompt,\n    reason: null,\n    conversion_options: [],\n    metrics: metrics,\n    notes: []\n  };\n}\n\nfunction composeNotPrompt(request, metrics, classification) {\n  return {\n    request_id: request.request_id,\n    is_prompt: false,\n    purpose: null,\n    strengths: [],\n    weaknesses: [],\n    recommendations: [],\n    scores: {\n      clarity: 0,\n      completeness: 0,\n      ambiguity_absence: 0,\n      target_audience_fit: 0,\n      output_format: 0,\n      constraints_quality: 0,\n      missing_assumptions: 0,\n      structure_reusability: 0,\n      overall: 0\n    },\n    quality_level: 'not_applicable',\n    revised_prompt: null,\n    reason: classification.reason,\n    conversion_options: [\n      'Добавьте ролевую инструкцию (например: \"Ты — ...\")',\n      'Укажите ожидаемый формат результата',\n      'Опишите конкретную задачу'\n    ],\n    metrics: metrics,\n    notes: ['Текст не является промптом для языковой модели']\n  };\n}\n\n// ============================================================================\n// MAIN EXECUTION\n// ============================================================================\n\nasync function main() {\n  try {\n    // Получаем модель из подключения\n    const llm = await this.getInputConnectionData(\"ai_languageModel\", 0);\n    if (!llm) {\n      throw new Error('No language model connected. Please connect OpenAI Chat Model to LangChain Code node.');\n    }\n\n    // Получаем входные данные\n    const inputData = this.getInputData();\n    if (!inputData || inputData.length === 0) {\n      throw new Error('No input data received from Chat Trigger.');\n    }\n\n    // Этап 1: Извлечение входных данных\n    const request = extractInput(inputData[0].json);\n\n    // Этап 2: Сбор метрик\n    const metrics = collectPromptMetrics(request.prompt_text);\n\n    // Этап 3: Классификация\n    const classification = await classifyPrompt(llm, request);\n\n    // Если текст не является промптом\n    if (!classification.is_prompt) {\n      return composeNotPrompt(request, metrics, classification);\n    }\n\n    // Этап 4: Анализ качества\n    const reviewResult = await reviewPrompt(llm, request, metrics);\n\n    // Этап 5: Улучшенная редакция\n    const revisedPrompt = await rewritePrompt(llm, request, reviewResult);\n\n    // Этап 6: Формирование результата\n    return composeResult(request, metrics, reviewResult, revisedPrompt);\n\n  } catch (error) {\n    // Возвращаем ошибку в структурированном формате\n    return {\n      request_id: 'error',\n      is_prompt: false,\n      error: true,\n      message: error.message,\n      purpose: null,\n      strengths: [],\n      weaknesses: [],\n      recommendations: [],\n      scores: {\n        clarity: 0,\n        completeness: 0,\n        ambiguity_absence: 0,\n        target_audience_fit: 0,\n        output_format: 0,\n        constraints_quality: 0,\n        missing_assumptions: 0,\n        structure_reusability: 0,\n        overall: 0\n      },\n      quality_level: 'error',\n      revised_prompt: null,\n      reason: `Ошибка обработки: ${error.message}`,\n      conversion_options: [],\n      metrics: {},\n      notes: ['Произошла ошибка при обработке запроса']\n    };\n  }\n}\n\n// Точка входа для n8n LangChain Code node\nreturn await main.call(this);"
+          }
+        },
+        "inputs": {
+          "input": [
+            {
+              "type": "main",
+              "maxConnections": 1,
+              "required": true
+            },
+            {
+              "type": "ai_languageModel",
+              "maxConnections": 1,
+              "required": true
+            }
+          ]
+        },
+        "outputs": {
+          "output": [
+            {
+              "type": "main"
+            }
+          ]
+        }
+      },
+      "id": "c92c174c-d857-4c10-8f55-a363b97f4154",
+      "name": "Prompt Review Agent",
+      "type": "@n8n/n8n-nodes-langchain.code",
+      "position": [
+        1200,
+        320
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "id": "fd80e9cf-acb0-4eb7-b9d9-14ca0c9ddaf8",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1232,
+        512
+      ],
+      "typeVersion": 1.2,
+      "credentials": {
+        "openAiApi": {
+          "id": "GDowTjiaK2ScwGFr",
+          "name": "OpenAI account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Prompt Review Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Prompt Review Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "68eadce7-c750-4e3d-a211-1066e537a1ab",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "459d700c4d3ea9df0b9dbe57d77ff97afbecd67db60fe901cb9d66accc63fb7f"
+  },
+  "id": "Jfx6UhQhhfScwote",
+  "tags": []
+}
