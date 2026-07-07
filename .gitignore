@@ -41,6 +41,7 @@ temp/
 # APL working artifacts not for public GitHub
 attachments/
 task-history/
+task_history/
 PROJECT_GOAL.md
 
 # Local reports / generated drafts
