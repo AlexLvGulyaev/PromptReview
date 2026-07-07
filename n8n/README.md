@@ -97,11 +97,11 @@ flowchart LR
 
 **Workflow диаграммы:**
 
-![Workflow: n8n + LangFlow](docs/screenshots/PEL05_flow_langflow_scenario1.png)
+![Workflow: n8n + LangFlow](../docs/screenshots/PEL05_flow_langflow_scenario1.png)
 
-![Workflow: n8n + LangChain](docs/screenshots/PEL05_flow_langchain_scenario2.png)
+![Workflow: n8n + LangChain](../docs/screenshots/PEL05_flow_langchain_scenario2.png)
 
-![Полный workflow n8n + LangFlow](docs/screenshots/PEL05_flow_langflow_full.png)
+![Полный workflow n8n + LangFlow](../docs/screenshots/PEL05_flow_langflow_full.png)
 
 ## Конвейер обработки (Сценарий 2)
 
@@ -146,9 +146,9 @@ flowchart TD
 
 **Результаты работы:**
 
-![Результат: не промпт](docs/screenshots/PEL05_result_not_prompt.png)
+![Результат: не промпт](../docs/screenshots/PEL05_result_not_prompt.png)
 
-![LangFlow: не промпт](docs/screenshots/PEL05_result_langflow_not_prompt.png)
+![LangFlow: не промпт](../docs/screenshots/PEL05_result_langflow_not_prompt.png)
 
 **Если is_prompt = true:**
 
