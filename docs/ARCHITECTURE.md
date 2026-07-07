@@ -81,6 +81,8 @@ Prompt Review Service предоставляет три пользователь
 
 ![Web UI: анализ промпта](screenshots/PEL06_result_web_analysis1.png)
 
+![Web UI: анализ промпта (продолжение)](screenshots/PEL06_result_web_analysis2.png)
+
 **Архитектура:**
 
 ```

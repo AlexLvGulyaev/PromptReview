@@ -160,6 +160,8 @@ Prompt Review Service прошёл путь от концепции до product
 
 ![Web UI: анализ промпта](docs/screenshots/PEL06_result_web_analysis1.png)
 
+![Web UI: анализ промпта (продолжение)](docs/screenshots/PEL06_result_web_analysis2.png)
+
 Production-ready сервис: REST API, Web UI, Telegram Bot, готовность к развёртыванию.
 
 **Подробнее:** [api/README.md](api/README.md)

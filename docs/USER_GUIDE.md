@@ -86,6 +86,8 @@ Prompt Review Service анализирует промпты для LLM как и
 
 ![Web UI: анализ промпта](screenshots/PEL06_result_web_analysis1.png)
 
+![Web UI: анализ промпта (продолжение)](screenshots/PEL06_result_web_analysis2.png)
+
 **Результат содержит:**
 
 | Поле | Описание |
