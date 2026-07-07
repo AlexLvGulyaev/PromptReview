@@ -12,7 +12,7 @@
 
 **PEl06 — FastAPI API-слой**
 
-Все этапы (1-8) завершены. Проект развёрнут публично и готов к публикации на GitHub.
+Все этапы (1-8) завершены. Проект готов к публикации на GitHub.
 
 **Завершённые этапы:**
 - ✅ **Этап 1:** Структура проекта `api/` с requirements.txt и README.md
@@ -24,14 +24,10 @@
 - ✅ **Этап 7:** Web UI (index.html, styles.css, app.js, README.md)
 - ✅ **Этап 8:** Production-упаковка (Docker, CORS, логирование, документация)
 
-**Публичные точки входа:**
-- **Web UI:** https://prompt-review-demo.alex-n8n.site
-- **API:** https://prompt-review-api.alex-n8n.site
-- **Swagger UI:** https://prompt-review-api.alex-n8n.site/docs
-- **ReDoc:** https://prompt-review-api.alex-n8n.site/redoc
-- **Telegram Bot:** @OptimusPromptReview_bot
-
-**Следующий шаг:** Публикация на GitHub.
+**Публичные интерфейсы:**
+- **Web UI** — доступен после локального развёртывания (см. DEPLOYMENT_GUIDE.md)
+- **REST API** — доступен после запуска сервиса
+- **Telegram Bot** — может быть подключён при наличии собственного bot token (см. DEPLOYMENT_GUIDE.md)
 
 ---
 
@@ -95,7 +91,7 @@ PEl06: FastAPI API-слой (production-ready сервис)
 ### Backend-варианты
 
 **Сценарий 1: LangFlow**
-- Размещение: VPS (https://langflow.alex-n8n.site)
+- Размещение: VPS или локальный сервер
 - Runtime: OpenAI API
 - Интеграция: HTTP Request из n8n/FastAPI
 
@@ -191,4 +187,4 @@ LangFlow или LangChain backend
 | 2026-07-05 | Этап 5 завершён | FastAPI API протестирован, tests.md создан, скриншоты сохранены |
 | 2026-07-05 | Этап 6 завершён | Telegram Bot UI реализован, протестирован в Telegram |
 | 2026-07-05 | Этап 7 завершён | Web UI реализован на основе дизайн-системы Lead Qualification |
-| 2026-07-06 | PEl06 завершён | Production-упаковка: Docker, CORS, логирование, документация, публичное развёртывание |
+| 2026-07-06 | PEl06 завершён | Production-упаковка: Docker, CORS, логирование, документация |

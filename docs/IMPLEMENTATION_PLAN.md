@@ -656,7 +656,7 @@ api/
 
 | Компонент | Адрес | Статус |
 |-----------|-------|--------|
-| LangFlow | https://langflow.alex-n8n.site | ✅ Работает |
+| LangFlow | VPS или локальный сервер | ✅ Работает |
 | PostgreSQL | Внутренний контейнер | ✅ Работает |
 
 **Принцип реализации этапа 8:**
@@ -754,7 +754,7 @@ networks:
 BACKEND_TYPE=langflow
 
 # LangFlow configuration (если BACKEND_TYPE=langflow)
-LANGFLOW_URL=https://langflow.alex-n8n.site
+LANGFLOW_URL=http://localhost:7860
 LANGFLOW_FLOW_ID=your_flow_id
 LANGFLOW_API_KEY=your_api_key
 
