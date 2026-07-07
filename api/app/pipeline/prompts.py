@@ -74,7 +74,7 @@ REVIEW_FORMAT_INSTRUCTIONS = """{
     "structure_reusability": число от 0 до 10,
     "overall": число от 0 до 10
   },
-  "quality_level": "один из: excellent, good, acceptable, weak, unusable"
+  "quality_level": "определяется по overall: excellent (>=9), good (>=7), fair (>=5), poor (>=3), not_applicable (<3)"
 }"""
 
 # ============================================================================

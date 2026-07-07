@@ -1,208 +1,179 @@
 # Prompt Review Service
 
-AI-сервис для анализа качества пользовательских промптов. Проходит путь от учебного прототипа до production-ready API.
+**AI-сервис для анализа качества промптов**
+
+Prompt Review Service анализирует промпты, выявляет сильные и слабые стороны, оценивает качество по инженерным критериям, предлагает рекомендации по улучшению и генерирует улучшенную редакцию.
+
+Ключевая особенность: агент рассматривает промпт как **объект инженерного анализа**, а не как задачу для выполнения. Он не выполняет промпт, не принимает указанную роль, сохраняет исходную цель и аудиторию.
 
 ---
 
-## Описание
+## Возможности
 
-**Prompt Review Service** анализирует промпты, выявляет сильные и слабые стороны, оценивает качество по инженерным критериям, предлагает рекомендации по улучшению и генерирует улучшенную редакцию.
+### Анализ промптов
 
-Ключевая характеристика: агент рассматривает входной текст как **объект инженерного анализа**, а не как задачу для выполнения. Он не выполняет промпт, не принимает указанную роль, сохраняет исходную цель и аудиторию.
+- **Классификация** — определяет, является ли текст промптом для LLM
+- **Оценка качества** — анализирует по 8 критериям:
+  - Ясность (clarity)
+  - Полнота (completeness)
+  - Отсутствие двусмысленности (ambiguity_absence)
+  - Соответствие аудитории (target_audience_fit)
+  - Формат вывода (output_format)
+  - Качество ограничений (constraints_quality)
+  - Учёт предположений (missing_assumptions)
+  - Повторяемость структуры (structure_reusability)
+- **Общая оценка** (overall) и уровень качества (quality_level)
+- **Рекомендации** — приоритизированный список улучшений
+- **Улучшенная редакция** — переработанная версия промпта
 
----
+### Форматы взаимодействия
 
-## Архитектурная эволюция
-
-Проект демонстрирует эволюцию AI-решения от прототипа до production-сервиса:
-
-| Этап | Технология | Ключевое достижение | Статус |
-|------|------------|---------------------|--------|
-| **PEl03** | LangFlow | MVP Prompt Review Agent | ✅ Завершён |
-| **PEl04** | LangChain | Chain + AgentExecutor + Tool | ✅ Завершён |
-| **PEl05** | n8n | Две интеграционные архитектуры | ✅ Завершён |
-| **PEl06** | FastAPI | Публичный API-слой /review | ✅ Завершён |
-
-### Итоговая архитектура
-
-```
-Telegram / Web / n8n / CLI
-          ↓
-      FastAPI (/review)
-          ↓
-  Prompt Review Engine
-          ↓
-LangFlow или LangChain backend
-```
+- **Web UI** — удобный веб-интерфейс с тёмной темой
+- **Telegram Bot** — чат-бот для быстрой проверки
+- **HTTP API** — REST API для интеграции
 
 ---
 
-## Реализации
+## Демонстрация
 
-### PEl03: LangFlow MVP
+### Web UI
 
-**Каталог:** `langflow/`
+![Web UI Demo](docs/screenshots/PEl06_web_prompt1.png)
 
-**Назначение:** Прототип Prompt Review Agent на базе визуального конструктора LangFlow.
+**Попробовать:** https://prompt-review-demo.alex-n8n.site
 
-**Ключевые особенности:**
-- Основан на шаблоне Basic Prompting
-- Минимальные изменения — только системный промпт
-- Классификация: промпт или обычный текст
-- Структурированный анализ качества
+### Telegram Bot
 
-**Артефакты:**
-- `langflow/README.md` — документация
-- Flow JSON для импорта
+![Telegram Bot Demo](docs/screenshots/PEl06_tg_prompt.png)
 
----
+**Попробовать:** @OptimusPromptReview_bot
 
-### PEl04: LangChain Chain / AgentExecutor
+### API
 
-**Каталог:** `langchain/`
-
-**Назначение:** Локальная реализация на LangChain с поддержкой двух режимов работы.
-
-**Ключевые особенности:**
-- **Chain mode** — линейный поток без инструментов
-- **AgentExecutor mode** — режим с Tool Calling
-- Инструмент `prompt_metrics` для расчёта метрик
-- Поддержка локальных моделей через Ollama
-
-**Артефакты:**
-- `langchain/main.py` — Chain-реализация
-- `langchain/main_agent.py` — AgentExecutor-реализация
-- `langchain/tools/prompt_metrics.py` — инструмент метрик
-
-**Модели:**
-- `llama3.2:1b` — быстрый анализ простых промптов
-- `gemma4:e4b` — глубокий анализ сложных промптов
+**Попробовать:** https://prompt-review-api.alex-n8n.site/docs
 
 ---
 
-### PEl05: n8n интеграции
+## Быстрый старт
 
-**Каталог:** `n8n/`
+### Онлайн
 
-**Назначение:** Интеграция AI-компонентов с оркестратором n8n.
+Просто откройте один из интерфейсов:
 
-#### Сценарий 1: n8n + LangFlow ✅
-
-**Архитектура:**
-```
-n8n Workflow → HTTP Request → LangFlow API → Structured Output → JSON
-```
-
-**Ключевые особенности:**
-- LangFlow развёрнут на VPS (Docker + PostgreSQL)
-- OpenAI API для инференса
-- Единый JSON-контракт
-
-#### Сценарий 2: n8n + LangChain ✅
-
-**Архитектура:**
-```
-Chat Trigger → LangChain Code → OpenAI Chat Model → JSON Output
-```
-
-**Ключевые особенности:**
-- Вся интеллектуальная логика внутри n8n
-- Конвейер обработки с ветвлением
-- Классификатор текста (промпт/не промпт)
-- Автономный workflow без внешних зависимостей
-
-**Конвейер обработки:**
-```
-extractInput → collectPromptMetrics → classifyPrompt
-                    ↓
-         is_prompt=false → composeNotPrompt → JSON
-         is_prompt=true  → reviewPrompt → rewritePrompt → composeResult → JSON
-```
-
-**Артефакты:**
-- `n8n/README.md` — документация сценариев
-- `n8n/langchain/README.md` — детали сценария 2
-- `n8n/langchain/tests.md` — тестовые примеры
-
----
-
-### PEl06: FastAPI API-слой
-
-**Каталог:** `api/`
-
-**Назначение:** Production-ready API-сервис с endpoint `/review`.
-
-**Публичные точки входа:**
 - **Web UI:** https://prompt-review-demo.alex-n8n.site
-- **API:** https://prompt-review-api.alex-n8n.site
-- **Swagger UI:** https://prompt-review-api.alex-n8n.site/docs
-- **ReDoc:** https://prompt-review-api.alex-n8n.site/redoc
-- **Telegram Bot:** @OptimusPromptReview_bot
+- **Telegram:** @OptimusPromptReview_bot
+- **API:** https://prompt-review-api.alex-n8n.site/docs
 
-**Ключевые особенности:**
-- Публичный HTTP API с HTTPS
-- Единый JSON-контракт от PEl05
-- Backend-вариантность: LangFlow или LangChain
-- Два UI-сценария: Telegram Bot и Web UI
+### Локальный запуск
 
-**Реализованные этапы:**
-- ✅ Структура проекта `api/`
-- ✅ Pydantic-модели (`schemas.py`)
-- ✅ Backend-адаптеры (`LangFlowAdapter`, `LangChainAdapter`)
-- ✅ FastAPI-сервер (endpoints: `/`, `/health`, `/review`)
-- ✅ Тестирование FastAPI (`tests.md`)
-- ✅ Telegram Bot UI (aiogram 3.x, HTML formatting)
-- ✅ Web UI (HTML5, CSS3, Vanilla JS)
-- ✅ Production-упаковка (Docker, CORS, логирование)
+```bash
+# Клонировать репозиторий
+git clone https://github.com/username/prompt-review-service.git
+cd prompt-review-service
 
-**Telegram Bot UI:**
-- Каталог `api/telegram/`
-- aiogram 3.x с HTML-форматированием
-- Обработка ошибок API
-- Документация (`api/telegram/README.md`)
+# Установить зависимости
+cd api
+pip install -r requirements.txt
 
-**Web UI:**
-- Каталог `api/web/`
-- Тёмная тема на основе Lead Qualification дизайн-системы
-- Адаптивная вёрстка (desktop, tablet, mobile)
-- Прогресс-бары для визуализации оценок
-- Карточки с цветными акцентами
-- Документация (`api/web/README.md`)
+# Настроить переменные окружения
+cp ../infra/.env.example ../infra/.env
+# Отредактировать ../infra/.env с вашими ключами
 
-**Безопасность:**
-- CORS только для доверенных origin
-- HTTPS через Traefik
-- Секреты в `.env` (не коммитятся в Git)
-- Структурированное JSON-логирование
+# Запустить
+uvicorn app.main:app --reload --port 8000
+```
 
-**Спецификация:** `docs/SPEC.md`
-**План реализации:** `docs/IMPLEMENTATION_PLAN.md`
+### Пример запроса
+
+```bash
+curl -X POST https://prompt-review-api.alex-n8n.site/review \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt_text": "Напиши функцию сортировки списка на Python",
+    "user_id": "demo"
+  }'
+```
 
 ---
 
-## Инфраструктура
+## Эволюция проекта
 
-**Каталог:** `infra/`
+Prompt Review Service прошёл путь от прототипа до production-ready сервиса:
 
-**Развёрнутые компоненты:**
+### Этап 1: LangFlow MVP (Прототип)
 
-| Компонент | Адрес | Статус |
-|-----------|-------|--------|
-| **LangFlow** | https://langflow.alex-n8n.site | ✅ Running |
-| **PostgreSQL** | Внутренний контейнер | ✅ Running |
-| **FastAPI API** | https://prompt-review-api.alex-n8n.site | ✅ Running |
-| **Web UI** | https://prompt-review-demo.alex-n8n.site | ✅ Running |
+Визуальный конструктор для быстрой проверки концепции. Минимальные изменения — только системный промпт.
 
-**Docker-контейнеры:**
-- `prompt-review-langflow` — LangFlow 1.10.1
-- `prompt-review-postgres` — PostgreSQL 16
-- `prompt-review-api` — FastAPI Service
+**Результат:** Подтверждение, что AI-агент может анализировать промпты как инженерный объект.
 
-**Документация:**
-- `infra/README.md` — статус инфраструктуры и инструкции по развёртыванию
-- `infra/docker-compose.langflow.yml` — LangFlow + PostgreSQL
-- `infra/docker-compose.api.yml` — FastAPI Service
-- `infra/Dockerfile.api` — Dockerfile для FastAPI
+### Этап 2: LangChain (Контролируемый код)
+
+Python-реализация с поддержкой локальных моделей. Два режима: линейный Chain и AgentExecutor с инструментами.
+
+**Результат:** Полный контроль над обработкой, интеграция с Ollama.
+
+### Этап 3: n8n (Интеграции)
+
+Интеграция с оркестратором n8n. Два сценария: n8n+LangFlow и n8n+LangChain.
+
+**Результат:** Единый JSON-контракт, модульный конвейер обработки, ветвление по типу текста.
+
+### Этап 4: FastAPI (Production)
+
+Production-ready API-сервис с публичным endpoint, двумя UI-сценариями и backend-вариантностью.
+
+**Результат:** Публичный API, готовый к интеграции в production-системы.
+
+---
+
+## Архитектура
+
+Prompt Review Service построен на паттерне Backend Adapter, что позволяет переключаться между LangFlow и LangChain без изменения кода.
+
+**Подробнее:** [ARCHITECTURE.md](docs/ARCHITECTURE.md)
+
+---
+
+## API
+
+### Endpoint
+
+```
+POST /review
+```
+
+### Запрос
+
+```json
+{
+  "prompt_text": "Текст для анализа",
+  "user_id": "user123",
+  "review_mode": "standard"
+}
+```
+
+### Ответ
+
+```json
+{
+  "request_id": "req_...",
+  "user_id": "user123",
+  "is_prompt": true,
+  "purpose": "Назначение промпта",
+  "strengths": ["..."],
+  "weaknesses": ["..."],
+  "recommendations": [...],
+  "scores": {
+    "clarity": 8,
+    "completeness": 7,
+    "overall": 7.5
+  },
+  "quality_level": "good",
+  "revised_prompt": "Улучшенная редакция..."
+}
+```
+
+**Полный контракт:** [API_CONTRACT.md](docs/API_CONTRACT.md)
 
 ---
 
@@ -210,140 +181,30 @@ extractInput → collectPromptMetrics → classifyPrompt
 
 | Документ | Назначение |
 |----------|------------|
-| `docs/PROJECT_STATE.md` | Паспорт состояния проекта |
-| `docs/SPEC.md` | Продуктовая спецификация PEl06 |
-| `docs/IMPLEMENTATION_PLAN.md` | Технический план реализации (будет создан) |
-| `docs/deployment/` | Деплоймент-документация |
-| `docs/screenshots/` | Скриншоты для отчётов |
+| [README.md](README.md) | Общее описание проекта (этот файл) |
+| [PROJECT_STATE.md](docs/PROJECT_STATE.md) | Паспорт состояния проекта |
+| [SPEC.md](docs/SPEC.md) | Продуктовая спецификация |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Архитектура и технические детали |
+| [API_CONTRACT.md](docs/API_CONTRACT.md) | Логический контракт API |
 
 ---
 
-## История задач
+## Технологии
 
-**Каталог:** `task-history/`
-
-Каждая задача фиксируется в отдельном файле с исходным заданием и результатами выполнения.
-
----
-
-## Входные материалы
-
-**Каталог:** `attachments/input/`
-
-Учебные материалы Module 7 (LangChain & Agents):
-- `PEl03.md` — LangFlow MVP
-- `PEl04.md` — LangChain Agents
-- `PEl05.md` — n8n интеграции
-- `PEl06.md` — FastAPI API-слой
-
-**Каталог:** `attachments/reports/`
-
-PDF-отчёты по завершённым урокам.
+- **Backend:** Python 3.11, FastAPI, Pydantic
+- **AI Runtime:** OpenAI API / Ollama (LangFlow / LangChain)
+- **Frontend:** HTML5, CSS3, Vanilla JS
+- **Bot:** aiogram 3.x
+- **Infrastructure:** Docker, PostgreSQL, Traefik
 
 ---
 
-## JSON-контракт
+## Лицензия
 
-Единый формат ответа для всех реализаций:
-
-```json
-{
-  "request_id": "req_001",
-  "user_id": "user_123",
-  "is_prompt": true,
-  "purpose": "Назначение промпта",
-  "strengths": ["Сильная сторона 1", "Сильная сторона 2"],
-  "weaknesses": ["Слабая сторона 1"],
-  "recommendations": [
-    {"priority": "high", "text": "Рекомендация 1"},
-    {"priority": "medium", "text": "Рекомендация 2"}
-  ],
-  "scores": {
-    "clarity": 8,
-    "specificity": 7,
-    "structure": 9,
-    "examples": 4,
-    "constraints": 5,
-    "overall": 7
-  },
-  "quality_level": "good",
-  "revised_prompt": "Улучшенная редакция...",
-  "reason": null,
-  "conversion_options": [],
-  "metrics": {
-    "characters": 450,
-    "words": 67,
-    "lines": 12
-  },
-  "processing_time_ms": 2345
-}
-```
-
----
-
-## Следующие шаги
-
-| Приоритет | Задача | Статус |
-|-----------|--------|--------|
-| ~~P1~~ | ~~Реализовать FastAPI endpoint `/review`~~ | ✅ Готово |
-| ~~P1~~ | ~~Создать структуру `api/`~~ | ✅ Готово |
-| ~~P2~~ | ~~Реализовать Telegram Bot UI~~ | ✅ Готово |
-| ~~P2~~ | ~~Реализовать Web UI~~ | ✅ Готово |
-| ~~P3~~ | ~~Production-упаковка~~ | ✅ Готово |
-| P4 | Публикация на GitHub | 📋 Планируется |
-
----
-
-## Быстрый старт
-
-### Локальный запуск
-
-```bash
-# Клонировать репозиторий
-git clone <repo-url>
-cd prompt-review
-
-# Установить зависимости
-cd api
-pip install -r requirements.txt
-
-# Создать .env из шаблона
-cp ../infra/.env.example ../infra/.env
-# Отредактировать ../infra/.env с вашими ключами
-
-# Запустить FastAPI
-uvicorn app.main:app --reload --port 8000
-```
-
-### Проверка
-
-```bash
-# Health check
-curl http://localhost:8000/health
-
-# Swagger UI
-open http://localhost:8000/docs
-
-# Пример запроса
-curl -X POST http://localhost:8000/review \
-  -H "Content-Type: application/json" \
-  -d '{"prompt_text": "Напиши функцию сортировки списка на Python", "user_id": "test_user"}'
-```
-
-### Docker-развёртывание
-
-```bash
-cd infra
-
-# Запуск LangFlow + PostgreSQL
-docker compose -f docker-compose.langflow.yml up -d
-
-# Запуск FastAPI API
-docker compose -f docker-compose.api.yml up -d --build
-```
+MIT License
 
 ---
 
 ## Контакты
 
-Проект развивается в рамках AI Automation Portfolio Lab.
+Проект развивается в рамках инженерной методологии AI Automation Portfolio Lab.

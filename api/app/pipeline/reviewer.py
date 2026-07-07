@@ -148,8 +148,36 @@ async def review_prompt(
             overall=scores_raw.get("overall", 0),
         )
 
-        # Определяем quality_level
-        quality_level = result.get("quality_level", "good").lower()
+        # Определяем quality_level на основе overall
+        # Принудительная валидация соответствия
+        quality_level_raw = result.get("quality_level", "good").lower()
+
+        # Маппинг quality_level на основе overall
+        if scores.overall >= 9:
+            quality_level_expected = "excellent"
+        elif scores.overall >= 7:
+            quality_level_expected = "good"
+        elif scores.overall >= 5:
+            quality_level_expected = "fair"
+        elif scores.overall >= 3:
+            quality_level_expected = "poor"
+        else:
+            quality_level_expected = "not_applicable"
+
+        # Используем маппинг, если LLM вернул некорректное значение
+        if quality_level_raw not in ["excellent", "good", "fair", "poor", "not_applicable"]:
+            logger.warning(f"Invalid quality_level from LLM: {quality_level_raw}, using mapped value: {quality_level_expected}")
+            quality_level = quality_level_expected
+        else:
+            # Проверяем соответствие overall и quality_level
+            if quality_level_raw != quality_level_expected:
+                logger.warning(
+                    f"quality_level '{quality_level_raw}' doesn't match overall {scores.overall}, "
+                    f"expected '{quality_level_expected}'. Using mapped value."
+                )
+                quality_level = quality_level_expected
+            else:
+                quality_level = quality_level_raw
 
         return ReviewResult(
             purpose=result.get("purpose", "Анализ промпта"),

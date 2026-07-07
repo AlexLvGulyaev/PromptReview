@@ -20,8 +20,19 @@ def format_prompt_response(data: Dict[str, Any]) -> str:
     """
     sections = []
 
-    # Заголовок
+    # Заголовок с качеством
     quality_level = data.get('quality_level', 'not_applicable')
+
+    # Маппинг качества на русский язык
+    quality_text = {
+        'excellent': 'Отлично',
+        'good': 'Хорошо',
+        'fair': 'Удовлетворительно',
+        'poor': 'Плохо',
+        'not_applicable': 'Не применимо'
+    }
+
+    # Маппинг эмодзи
     quality_emoji = {
         'excellent': '🌟',
         'good': '✅',
@@ -29,8 +40,11 @@ def format_prompt_response(data: Dict[str, Any]) -> str:
         'poor': '❌',
         'not_applicable': '❓'
     }
+
+    text = quality_text.get(quality_level, 'Неизвестно')
     emoji = quality_emoji.get(quality_level, '📊')
-    sections.append(f"<b>{emoji} Анализ промпта</b>")
+
+    sections.append(f"<b>{emoji} Качество: {text}</b>")
     sections.append("")
 
     # Назначение (экранируем HTML)
