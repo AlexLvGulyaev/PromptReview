@@ -33,8 +33,8 @@ graph TD
     
     UI -->|HTTP POST /review| API[FastAPI Layer]
     
-    API -->|GET /| UP[{"status": "up"}]
-    API -->|GET /health| OK[{"status": "ok"}]
+    API -->|GET /| UP["status: up"]
+    API -->|GET /health| OK["status: ok"]
     API -->|POST /review| REVIEW[PromptReviewResponse]
     
     API -->|BackendAdapter| ADAPTER{Backend Adapter Layer<br/>get_backend_adapter}
@@ -236,7 +236,7 @@ FastAPI взаимодействует **только** с `BackendAdapter` че
 ```mermaid
 sequenceDiagram
     participant Client as HTTP Client
-    participant API as FastAPI<br/>main.py
+    participant API as FastAPI main.py
     participant Factory as get_backend_adapter
     participant LangFlow as LangFlowAdapter
     participant LangChain as LangChainAdapter
@@ -250,7 +250,7 @@ sequenceDiagram
         Factory->>LangFlow: return LangFlowAdapter
         LangFlow->>LLM: HTTP POST /api/v1/run/{flow_id}
         LLM-->>LangFlow: JSON response
-        LangFlow->>LangFlow: Transform JSON<br/>→ PromptReviewResponse
+        LangFlow->>LangFlow: Transform JSON to PromptReviewResponse
         LangFlow-->>API: PromptReviewResponse
     else BACKEND_TYPE = langchain
         Factory->>LangChain: return LangChainAdapter
@@ -263,14 +263,6 @@ sequenceDiagram
     end
     
     API-->>Client: PromptReviewResponse
-
-    style Client fill:#e1f5fe
-    style API fill:#fff3e0
-    style Factory fill:#f3e5f5
-    style LangFlow fill:#e8f5e9
-    style LangChain fill:#e8f5e9
-    style Pipeline fill:#c8e6c9
-    style LLM fill:#fce4ec
 ```
 
 ### Почему так сделано
