@@ -87,6 +87,18 @@ flowchart TD
     G --> D
 ```
 
+**Интерфейсы LangChain:**
+
+![AgentExecutor главный экран](docs/screenshots/PEL04_ui_agentexecutor_main.png)
+
+![Chain mode интерфейс](docs/screenshots/PEL04_ui_chain_mode.png)
+
+**Результаты работы:**
+
+![Пример ответа (качественный)](docs/screenshots/PEL04_result_quality.png)
+
+![Пример ответа (детальный)](docs/screenshots/PEL04_result_detailed.png)
+
 ## Используемые модели
 
 | Модель | Размер | Назначение | Вывод |

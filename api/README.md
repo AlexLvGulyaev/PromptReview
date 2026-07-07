@@ -67,7 +67,7 @@ pip install -r requirements.txt
 
 # Настройка переменных окружения
 export BACKEND_TYPE=langflow
-export LANGFLOW_URL=https://langflow.alex-n8n.site
+export LANGFLOW_URL=http://localhost:7860
 export LANGFLOW_FLOW_ID=your_flow_id
 export LANGFLOW_API_KEY=your_api_key
 

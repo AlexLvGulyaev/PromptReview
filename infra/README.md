@@ -15,29 +15,29 @@
 | FastAPI API | `prompt-review-api` | Работает |
 | Telegram Bot | `prompt-review-telegram` | Работает |
 
-## Публичные точки входа
+## Компоненты
 
 ### LangFlow
 
-- **UI:** https://langflow.alex-n8n.site
-- **Health Check:** https://langflow.alex-n8n.site/health_check
-- **API:** https://langflow.alex-n8n.site/api/v1/
+- **UI:** Доступен после локального развёртывания (см. DEPLOYMENT_GUIDE.md)
+- **Health Check:** `/health_check`
+- **API:** `/api/v1/`
 
 ### Prompt Review API
 
-- **API Root:** https://prompt-review-api.alex-n8n.site/
-- **Health:** https://prompt-review-api.alex-n8n.site/health
-- **Swagger UI:** https://prompt-review-api.alex-n8n.site/docs
-- **ReDoc:** https://prompt-review-api.alex-n8n.site/redoc
-- **Review Endpoint:** https://prompt-review-api.alex-n8n.site/review (POST)
+- **API Root:** Доступен после локального развёртывания (см. DEPLOYMENT_GUIDE.md)
+- **Health:** `/health`
+- **Swagger UI:** `/docs`
+- **ReDoc:** `/redoc`
+- **Review Endpoint:** `/review` (POST)
 
 ### Web UI
 
-- **Demo:** https://prompt-review-demo.alex-n8n.site/
+- **Demo:** Доступен после локального развёртывания (см. DEPLOYMENT_GUIDE.md)
 
 ### Telegram Bot
 
-- **Bot:** @OptimusPromptReview_bot
+- **Bot:** Требует собственного bot token (см. DEPLOYMENT_GUIDE.md)
 - **Commands:** `/start`, `/help`
 - **Usage:** Отправьте текст для анализа качества промпта
 
@@ -75,7 +75,7 @@
 ```yaml
 routers:
   langflow:
-    rule: "Host(`langflow.alex-n8n.site`)"
+    rule: "Host(`langflow.your-domain.com`)"
     entryPoints:
       - websecure
     tls:
@@ -106,13 +106,13 @@ LangFlow подключается к Ollama через `host.docker.internal:114
 | Переменная | Описание | Пример |
 |------------|----------|--------|
 | `BACKEND_TYPE` | Тип backend | `langflow` или `langchain` |
-| `LANGFLOW_URL` | URL LangFlow сервера | `https://langflow.alex-n8n.site` |
+| `LANGFLOW_URL` | URL LangFlow сервера | `http://localhost:7860` |
 | `LANGFLOW_FLOW_ID` | ID Flow в LangFlow | `eaa36f47-604c-4c62-902b-d4c84ffde61a` |
 | `LANGFLOW_API_KEY` | API ключ LangFlow | (секрет, не в Git) |
 
 ### Получение LangFlow API Key
 
-1. Открыть LangFlow UI: https://langflow.alex-n8n.site/
+1. Открыть LangFlow UI (см. DEPLOYMENT_GUIDE.md)
 2. Перейти в **Settings** (иконка шестерёнки)
 3. Выбрать **API Keys**
 4. Нажать **Create API Key**
@@ -174,7 +174,7 @@ docker compose -f docker-compose.api.yml ps
 http:
   routers:
     prompt-review-api:
-      rule: "Host(`prompt-review-api.alex-n8n.site`)"
+      rule: "Host(`api.your-domain.com`)"
       entryPoints:
         - websecure
       tls:
@@ -182,7 +182,7 @@ http:
       service: prompt-review-api
 
     prompt-review-demo:
-      rule: "Host(`prompt-review-demo.alex-n8n.site`)"
+      rule: "Host(`demo.your-domain.com`)"
       entryPoints:
         - websecure
       tls:
@@ -212,13 +212,13 @@ docker restart n8n-traefik
 
 ```bash
 # Health check
-curl https://prompt-review-api.alex-n8n.site/health
+curl http://localhost:8000/health
 
 # API docs
-open https://prompt-review-api.alex-n8n.site/docs
+open http://localhost:8000/docs
 
 # Web UI
-open https://prompt-review-demo.alex-n8n.site/
+open http://localhost:8000/ui
 ```
 
 ---
@@ -261,7 +261,6 @@ docker logs prompt-review-telegram --tail 20
 # Должно показать:
 # - Starting Prompt Review Telegram Bot
 # - API health check: {'status': 'ok', ...}
-# - Run polling for bot @OptimusPromptReview_bot
 ```
 
 ---
@@ -273,8 +272,8 @@ docker logs prompt-review-telegram --tail 20
 FastAPI настроен с CORS для доверенных origin:
 
 - `http://localhost:3000` — разработка
-- `https://prompt-review-demo.alex-n8n.site` — Web UI
-- `https://prompt-review-api.alex-n8n.site` — Swagger UI
+- `http://localhost:8000` — локальный API
+- Другие origins настраиваются через `CORS_ORIGINS`
 
 Telegram Bot работает через server-to-server и не требует CORS.
 
@@ -303,10 +302,10 @@ Telegram Bot работает через server-to-server и не требует
 
 ```bash
 # LangFlow
-curl https://langflow.alex-n8n.site/health_check
+curl http://localhost:7860/health_check
 
 # FastAPI
-curl https://prompt-review-api.alex-n8n.site/health
+curl http://localhost:8000/health
 ```
 
 ### Логирование

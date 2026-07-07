@@ -95,6 +95,14 @@ flowchart LR
 - Каждый этап выполняет одну задачу
 - Чёткое разделение ответственности
 
+**Workflow диаграммы:**
+
+![Workflow: n8n + LangFlow](docs/screenshots/PEL05_flow_langflow_scenario1.png)
+
+![Workflow: n8n + LangChain](docs/screenshots/PEL05_flow_langchain_scenario2.png)
+
+![Полный workflow n8n + LangFlow](docs/screenshots/PEL05_flow_langflow_full.png)
+
 ## Конвейер обработки (Сценарий 2)
 
 LangChain Code реализует обработку с ветвлением после классификатора:
@@ -135,6 +143,12 @@ flowchart TD
 **composeNotPrompt** — формирование JSON для обычного текста
    - Возвращает: reason, conversion_options, metrics
    - scores = 0, quality_level = "not_applicable"
+
+**Результаты работы:**
+
+![Результат: не промпт](docs/screenshots/PEL05_result_not_prompt.png)
+
+![LangFlow: не промпт](docs/screenshots/PEL05_result_langflow_not_prompt.png)
 
 **Если is_prompt = true:**
 
@@ -234,7 +248,7 @@ flowchart TD
 
 | Компонент | Статус | Адрес |
 |-----------|--------|-------|
-| **LangFlow** | ✅ Running | https://langflow.alex-n8n.site |
+| **LangFlow** | ✅ Running | Доступен после локального развёртывания |
 | **PostgreSQL** | ✅ Running | Внутренний контейнер |
 
 ### Подготовленная инфраструктура

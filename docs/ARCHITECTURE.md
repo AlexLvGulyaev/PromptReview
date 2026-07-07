@@ -75,6 +75,12 @@ Prompt Review Service предоставляет три пользователь
 
 **Доступ:** http://localhost:8000/ui
 
+**Интерфейс:**
+
+![Web UI: форма ввода](screenshots/PEL06_ui_web_form.png)
+
+![Web UI: анализ промпта](screenshots/PEL06_result_web_analysis1.png)
+
 **Архитектура:**
 
 ```
@@ -116,6 +122,14 @@ LLM Runtime
 
 ```bash
 TELEGRAM_BOT_TOKEN=your-bot-token
+PROMPT_REVIEW_API_URL=http://localhost:8000
+```
+
+**Интерфейс:**
+
+![Telegram Bot: интерфейс](screenshots/PEL06_ui_telegram_bot.png)
+
+![Telegram Bot: анализ промпта](screenshots/PEL06_result_telegram_analysis.png)
 PROMPT_REVIEW_API_URL=http://localhost:8000
 API_TIMEOUT=60
 ```
@@ -670,7 +684,21 @@ OLLAMA_MODEL=gemma2:9b
 
 ## Связанные документы
 
+### Основная документация
+
 - [PROJECT_STATE.md](PROJECT_STATE.md) — паспорт состояния проекта
 - [SPEC.md](SPEC.md) — продуктовая спецификация
 - [API_CONTRACT.md](API_CONTRACT.md) — логический контракт API
 - [README.md](../README.md) — публичное описание проекта
+
+### Документация компонентов
+
+| Компонент | Документация | Назначение |
+|-----------|--------------|------------|
+| **FastAPI API** | [api/README.md](../api/README.md) | Архитектура API, endpoints, запуск |
+| **Web UI** | [api/web/README.md](../api/web/README.md) | Веб-интерфейс, возможности |
+| **Telegram Bot** | [api/telegram/README.md](../api/telegram/README.md) | Telegram Bot, команды |
+| **LangFlow MVP** | [langflow/README.md](../langflow/README.md) | Прототип PEl03, Flow, тестирование |
+| **LangChain** | [langchain/README.md](../langchain/README.md) | Реализация PEl04, Chain/AgentExecutor |
+| **n8n Integration** | [n8n/README.md](../n8n/README.md) | Сценарии PEl05, интеграции |
+| **Инфраструктура** | [infra/README.md](../infra/README.md) | Docker, конфигурации |

@@ -169,13 +169,12 @@
 
 | Документ | Изображения | Назначение |
 |----------|-------------|------------|
-| **README.md** | IMG-027, IMG-029, IMG-032 | Демонстрация Web UI и Telegram Bot |
-| **USER_GUIDE.md** | IMG-030, IMG-031-033, IMG-027-029 | Инструкции по использованию |
-| **ARCHITECTURE.md** | IMG-003, IMG-010-013, IMG-014-021 | Архитектурные диаграммы |
-| **API_CONTRACT.md** | IMG-023-026 | Примеры API |
-| **langflow/README.md** | IMG-001, IMG-002 | Демонстрация LangFlow |
-| **langchain/README.md** | IMG-004-013 | Демонстрация LangChain |
-| **n8n/README.md** | IMG-014-022 | Демонстрация n8n |
+| **README.md** | IMG-002, IMG-009, IMG-019, IMG-027, IMG-029, IMG-032 | Демонстрация эволюции проекта и интерфейсов |
+| **USER_GUIDE.md** | IMG-027, IMG-028-033 | Инструкции по использованию Web UI и Telegram |
+| **ARCHITECTURE.md** | IMG-027, IMG-029-030, IMG-032 | Демонстрация интерфейсов в разделе User Interfaces |
+| **langflow/README.md** | IMG-001-002 | Демонстрация LangFlow интерфейсов |
+| **langchain/README.md** | IMG-004, IMG-007-009 | Демонстрация LangChain интерфейсов и результатов |
+| **n8n/README.md** | IMG-014, IMG-019, IMG-021, IMG-020, IMG-022 | Демонстрация workflow и результатов |
 
 ---
 
@@ -183,12 +182,30 @@
 
 **Изображения, используемые в нескольких документах:**
 
-| Изображение | Документы |
-|-------------|-----------|
-| IMG-027 (Telegram Bot) | README.md, USER_GUIDE.md |
-| IMG-029 (Telegram анализ) | README.md, USER_GUIDE.md |
-| IMG-030 (Web UI форма) | USER_GUIDE.md |
-| IMG-032-033 (Web UI анализ) | README.md, USER_GUIDE.md |
+| Изображение | Документы | Назначение |
+|-------------|-----------|------------|
+| IMG-002 (LangFlow интерфейс) | README.md, langflow/README.md | Демонстрация LangFlow MVP |
+| IMG-009 (Chain mode) | README.md, langchain/README.md | Демонстрация LangChain |
+| IMG-019 (n8n workflow) | README.md, n8n/README.md | Демонстрация n8n интеграции |
+| IMG-027 (Telegram Bot) | README.md, ARCHITECTURE.md, USER_GUIDE.md | Демонстрация Telegram Bot |
+| IMG-029 (Telegram анализ) | README.md, ARCHITECTURE.md, USER_GUIDE.md | Демонстрация результата анализа |
+| IMG-030 (Web UI форма) | ARCHITECTURE.md, USER_GUIDE.md | Демонстрация Web UI |
+| IMG-032 (Web UI анализ) | README.md, ARCHITECTURE.md, USER_GUIDE.md | Демонстрация результата анализа |
+
+---
+
+### Неиспользованные изображения
+
+**Архитектурные схемы (реализованы в Mermaid):**
+- IMG-003 — Диаграмма принятия решений агентом (Mermaid в langchain/README.md)
+- IMG-010-013 — Архитектурные схемы (Mermaid в ARCHITECTURE.md)
+- IMG-015-018 — Архитектурные схемы (Mermaid в ARCHITECTURE.md)
+
+**Специализированные скриншоты:**
+- IMG-005-006 — AgentExecutor шаги (не требуются в текущей документации)
+- IMG-020 — Результат n8n (не промпт) (использован IMG-022)
+- IMG-023-026 — Swagger UI screenshots (API_CONTRACT.md использует JSON примеры вместо скриншотов)
+- IMG-033 — Web UI анализ 2 (достаточно IMG-032)
 
 ---
 
@@ -255,9 +272,18 @@ JSON-примеры API-запросов и ответов размещены в
 - ✅ JSON-файлы перемещены в `docs/examples/`
 - ✅ Добавлен принцип использования изображений
 - ✅ Обновлена схема категорий
+- ✅ Добавлены скриншоты в локальные README (langflow, langchain, n8n)
+- ✅ Добавлены скриншоты интерфейсов в ARCHITECTURE.md
+- ✅ Добавлены ссылки на локальные README в README.md и ARCHITECTURE.md
+- ✅ Обновлена матрица использования изображений
 
 ---
 
 ## Статус
 
-✅ Каталог медиаматериалов систематизирован и готов к использованию в публичной документации.
+✅ Каталог медиаматериалов систематизирован и активно используется в публичной документации.
+
+**Статистика использования:**
+- Использовано изображений: 18 из 33 (55%)
+- Документов с изображениями: 6 из 8 (75%)
+- Повторно используемых: 7 изображений
