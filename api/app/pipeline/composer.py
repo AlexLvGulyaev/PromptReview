@@ -47,8 +47,10 @@ def compose_result(
         "good": QualityLevel.GOOD,
         "acceptable": QualityLevel.FAIR,  # backward compatibility
         "fair": QualityLevel.FAIR,
-        "weak": QualityLevel.POOR,
+        "poor": QualityLevel.POOR,
+        "weak": QualityLevel.POOR,  # backward compatibility
         "unusable": QualityLevel.POOR,
+        "not_applicable": QualityLevel.NOT_APPLICABLE,
     }
     quality_level = quality_level_map.get(
         review_result.quality_level.lower(),

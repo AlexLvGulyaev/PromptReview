@@ -247,14 +247,16 @@ def review_prompt_heuristic(prompt_text: str, metrics: PromptMetrics) -> ReviewR
                output_format + constraints_quality + missing_assumptions + structure_reusability) / 8
 
     # Определение quality_level
-    if overall >= 8:
+    if overall >= 9:
         quality_level = "excellent"
-    elif overall >= 6:
+    elif overall >= 7:
         quality_level = "good"
-    elif overall >= 4:
-        quality_level = "acceptable"
+    elif overall >= 5:
+        quality_level = "fair"
+    elif overall >= 3:
+        quality_level = "poor"
     else:
-        quality_level = "weak"
+        quality_level = "not_applicable"
 
     scores = PromptScores(
         clarity=clarity,

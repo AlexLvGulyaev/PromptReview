@@ -714,7 +714,7 @@ docker compose -f docker-compose.api.yml down
 
 ---
 
-### Полный E2E Check для Model 2
+#### Полный E2E Check для Model 2
 
 **Проверка всех компонентов:**
 
@@ -861,7 +861,7 @@ ps aux | grep "python.*bot.py"
 
 ---
 
-### Полный E2E Check для Telegram Bot
+#### Полный E2E Check для Telegram Bot
 
 **Проверка всех компонентов:**
 
@@ -1140,7 +1140,7 @@ docker compose -f docker-compose.langflow.yml down -v
 
 ---
 
-### Полный E2E Check для Model 3
+#### Полный E2E Check для Model 3
 
 **Проверка всех компонентов:**
 

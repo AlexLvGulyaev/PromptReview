@@ -86,7 +86,7 @@ class LangChainAdapter(BackendAdapter):
 
             self._llm = ChatOpenAI(
                 api_key=api_key,
-                model="gpt-4o-mini",  # Default model for cost efficiency
+                model=settings.OPENAI_MODEL,  # Configurable model
                 temperature=0,
                 timeout=self.timeout,
             )

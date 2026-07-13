@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     # LangChain configuration
     LANGCHAIN_MODEL: str = "openai"  # openai или ollama
     OPENAI_API_KEY: str = ""
+    OPENAI_MODEL: str = "gpt-4o"  # модель для OpenAI
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "gemma2:9b"
 
