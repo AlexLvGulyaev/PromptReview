@@ -4,6 +4,8 @@
 **Статус:** Завершено  
 **Кейс:** prompt-review  
 
+> ⚠️ **28.08.2026:** реальные значения `LANGFLOW_SECRET_KEY` (утёкший и Fernet) заменены плейсхолдерами `<LEAKED_KEY_MASKED_28-08-2026>` / `<FERNET_KEY_MASKED_28-08-2026>`. Актуальные значения — только в `infra/.env` (не в репозитории).
+
 ---
 
 ## 1. Описание симптома
@@ -42,7 +44,7 @@ Failed to initialize MCP servers: greenlet_spawn has not been called
 
 ```
 LANGFLOW_DATABASE_URL=postgresql://langflow:***@postgres:5432/langflow
-LANGFLOW_SECRET_KEY=t8u16yegRA8Oac8xnStmjlZCYQQsLcdx (32 символа)
+LANGFLOW_SECRET_KEY=<LEAKED_KEY_MASKED_28-08-2026> (32 символа)
 LANGFLOW_AUTO_LOGIN=False
 ```
 
@@ -114,12 +116,12 @@ else:
 ### Проблема с текущим ключом
 
 ```
-LANGFLOW_SECRET_KEY=t8u16yegRA8Oac8xnStmjlZCYQQsLcdx
+LANGFLOW_SECRET_KEY=<LEAKED_KEY_MASKED_28-08-2026>
 ```
 
 - Длина: 32 символа
 - Формат: случайный alphanumeric (НЕ base64)
-- Результат: `ensure_fernet_key` возвращает `b't8u16yegRA8Oac8xnStmjlZCYQQsLcdx'`
+- Результат: `ensure_fernet_key` возвращает `b'<LEAKED_KEY_MASKED_28-08-2026>'`
 - Fernet ожидает: 32 url-safe base64-encoded байта (44 символа в base64)
 
 ---
@@ -247,7 +249,7 @@ self.async_session_maker = async_sessionmaker(
 **Проверка:**
 ```python
 from cryptography.fernet import Fernet
-Fernet(b't8u16yegRA8Oac8xnStmjlZCYQQsLcdx')  # Ошибка!
+Fernet(b'<LEAKED_KEY_MASKED_28-08-2026>')  # Ошибка!
 ```
 
 **Статус:** ПОДТВЕРЖДЕНА. Это вторичная ошибка, но может влиять на общую стабильность.
@@ -312,7 +314,7 @@ greenlet._C_API       # <capsule object> ✅
 
 **Текущий (некорректный):**
 ```
-LANGFLOW_SECRET_KEY=t8u16yegRA8Oac8xnStmjlZCYQQsLcdx
+LANGFLOW_SECRET_KEY=<LEAKED_KEY_MASKED_28-08-2026>
 ```
 
 **Корректный (Fernet-generated):**
@@ -373,7 +375,7 @@ docker logs prompt-review-langflow -f
 ### Исходное состояние
 
 ```
-LANGFLOW_SECRET_KEY=t8u16yegRA8Oac8xnStmjlZCYQQsLcdx
+LANGFLOW_SECRET_KEY=<LEAKED_KEY_MASKED_28-08-2026>
 ```
 
 - Длина: 32 символа
@@ -386,13 +388,13 @@ LANGFLOW_SECRET_KEY=t8u16yegRA8Oac8xnStmjlZCYQQsLcdx
 
 ```bash
 python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
-# Результат: rzOCc6dhqizluNUTXN_DyjmNO-GV21TJ7uvsG-0drOA=
+# Результат: <FERNET_KEY_MASKED_28-08-2026>=
 ```
 
 **Шаг 2:** Обновление `infra/.env`:
 
 ```
-LANGFLOW_SECRET_KEY=rzOCc6dhqizluNUTXN_DyjmNO-GV21TJ7uvsG-0drOA=
+LANGFLOW_SECRET_KEY=<FERNET_KEY_MASKED_28-08-2026>=
 ```
 
 **Шаг 3:** Пересоздание контейнера:
@@ -477,13 +479,13 @@ python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().d
 **Неправильно:**
 ```
 # 32 символа alphanumeric — НЕ Fernet key
-LANGFLOW_SECRET_KEY=t8u16yegRA8Oac8xnStmjlZCYQQsLcdx
+LANGFLOW_SECRET_KEY=<LEAKED_KEY_MASKED_28-08-2026>
 ```
 
 **Правильно:**
 ```
 # 44 символа base64 — корректный Fernet key
-LANGFLOW_SECRET_KEY=rzOCc6dhqizluNUTXN_DyjmNO-GV21TJ7uvsG-0drOA=
+LANGFLOW_SECRET_KEY=<FERNET_KEY_MASKED_28-08-2026>=
 ```
 
 ---
