@@ -982,7 +982,9 @@ docker compose -p infra -f docker-compose.pipeline.yml --profile pipeline up -d 
 
 ```bash
 docker ps --filter name=prompt-review-pipeline
-curl http://localhost:8001/health
+# Host-порт 18001: порт 8001 на машине может быть занят другим проектом
+# (сопоставление 18001:8001 задано в docker-compose.pipeline.yml)
+curl http://localhost:18001/health
 ```
 
 **Ожидаемый результат:**
@@ -994,7 +996,7 @@ curl http://localhost:8001/health
 **Критерий успешного завершения:**
 
 - ✅ Контейнер `prompt-review-pipeline` запущен
-- ✅ `curl http://localhost:8001/health` возвращает `{"status":"ok",...}`
+- ✅ `curl http://localhost:18001/health` возвращает `{"status":"ok",...}`
 
 #### Шаг 2: Перевод API на Pipeline Service
 
@@ -2040,6 +2042,8 @@ docker volume ls
 - ✅ Вынесен Pipeline Service (опциональный компонент): `PromptReviewPipeline` доступен как отдельный HTTP-сервис (`api/pipeline_service/`), включается `BACKEND_TYPE=langchain_service` + `PIPELINE_SERVICE_URL`. JSON-контракт, учёт токенов и retry идентичны in-process режиму. По умолчанию НЕ разворачивается — существующие развёртывания не затронуты
 - ✅ Новая переменная `PIPELINE_SERVICE_URL` (опциональная) и режим `langchain_service` в `BACKEND_TYPE`
 - ✅ Новые файлы: `infra/Dockerfile.pipeline`, `infra/docker-compose.pipeline.yml`, `api/pipeline_service/` (см. разделы «Pipeline Service (опционально)» и Files Reference)
+- ✅ Хост-порт сервиса наружу — `18001` (порт 8001 на хосте может быть занят другим проектом); связь API→сервис — по DNS внутри сети (`pipeline-service:8001`), порт в `PIPELINE_SERVICE_URL` не меняется
+- ✅ Секция «Pipeline Service (опционально)» валидирована запуском на живом инстансе: сервис поднят, API переведён на `langchain_service`, E2E `/review` через сервис — PASS
 
 **2026-08-30 (v2.4):**
 - ✅ Инженерные улучшения пайплайна (P3): retry для LLM-вызова при временных ошибках (`RETRY_MAX_ATTEMPTS`, по умолчанию 2; таймаут делится на попытки — общий бюджет запроса сохраняется)

@@ -175,9 +175,9 @@ LangFlow или LangChain backend
 | ~~P3~~ | ~~Production checklist~~ | ~~HTTPS, CORS, logging~~ ✅ |
 | ~~P4~~ | ~~Публикация на GitHub~~ | ~~Репозиторий~~ ✅ (2026-07-06) |
 | ~~P1~~ | ~~Deployment Validation — воспроизведение развёртывания с нуля по DEPLOYMENT_GUIDE.md в чистом окружении~~ | ~~Deployment Validation Report~~ ✅ (2026-08-30: PASS в чистом окружении; DEPLOYMENT_GUIDE поднят до v2.3, повторная валидация правок — PASS) |
-| P2 | Оптимизация промптов (A/B-тестирование) | Отдельная задача |
+| P2 | Оптимизация промптов (A/B-тестирование) | Отдельная задача. Конкретика наблюдений 2026-08-30: якорь калибровки для коротких промптов (роль+задача ≠ poor за отсутствие аудитории/формата), nitpick «нет параметров функции» при том, что их построение — часть задачи |
 | ~~P3~~ | ~~Инженерные улучшения пайплайна: учёт токенов, retry-логика в LangChainAdapter, production-логи/метрики~~ | ✅ (2026-08-30: реализовано и протестировано — `RETRY_MAX_ATTEMPTS`, `token_usage` в `/review` и во всех UI, структурные логи) |
-| ~~P5~~ | ~~Вынос PromptReviewPipeline в отдельный сервис~~ | ✅ (2026-08-30: реализован опциональный Pipeline Service (`api/pipeline_service/`, `BACKEND_TYPE=langchain_service`); прод остаётся на in-process; решение владельца: same repo, HTTP-режим опционален) |
+| ~~P5~~ | ~~Вынос PromptReviewPipeline в отдельный сервис~~ | ✅ (2026-08-30: реализован опциональный Pipeline Service (`api/pipeline_service/`, `BACKEND_TYPE=langchain_service`); затем опробован на живом инстансе — прод временно работает на `langchain_service`, решение «оставить/откатить» — за владельцем) |
 
 ---
 
@@ -236,3 +236,4 @@ LangFlow или LangChain backend
 | 2026-08-30 | Deployment Validation пройдена | Воспроизведение с нуля в чистом окружении (dind, публичный клон): PASS c замечаниями; 6 дефектов DEPLOYMENT_GUIDE устранены и подтверждены повторной валидацией; гайд поднят до v2.3 (коммит `98a9a74`) |
 | 2026-08-30 | P3 закрыт: инженерные улучшения пайплайна | Retry LLM-вызовов (`RETRY_MAX_ATTEMPTS`, бюджет таймаута на попытки), учёт токенов (`token_usage` в ответе, `tokens_*` в логах), smoke-тесты 6/6 PASS; контейнер прод-инстанса пересобран и проверен |
 | 2026-08-30 | P5 закрыт: вынос Pipeline Service | `PromptReviewPipeline` доступен как опциональный HTTP-сервис: `api/pipeline_service/`, `PipelineServiceAdapter`, `BACKEND_TYPE=langchain_service` + `PIPELINE_SERVICE_URL`, compose с профилем `pipeline`; контракт/токены/retry идентичны in-process; решение владельца: same repo, прод — in-process; smoke 7/7 PASS |
+| 2026-08-30 | Pipeline Service включён на живом инстансе (пробный прогон) | Секция гайда «Pipeline Service (опционально)» прогнана запуском; найден и исправлен дефект (host-порт 8001 занят → 18001:8001); прод переведён на `langchain_service`, E2E PASS; A/B подтверждён: поведение нового пути идентично in-process (Ферма 4.0 == 4.0); живое тестирование владельцем (Web UI/TG) — PASS. Решение «оставить/откатить» — за владельцем |
