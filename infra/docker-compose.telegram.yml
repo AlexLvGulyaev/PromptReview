@@ -10,6 +10,7 @@
 # Stop:
 #   docker compose -f docker-compose.telegram.yml down
 
+name: prompt-review
 services:
   # ============================================================================
   # Telegram Bot Service

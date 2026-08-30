@@ -10,6 +10,7 @@
 # Stop:
 #   docker compose -f docker-compose.api.yml down
 
+name: prompt-review
 services:
   # ============================================================================
   # Prompt Review FastAPI Service

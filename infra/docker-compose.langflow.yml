@@ -8,6 +8,7 @@
 # Check:
 #   docker compose -f docker-compose.langflow.yml logs -f
 
+name: prompt-review
 services:
   # ============================================================================
   # LangFlow - AI Flow Platform
