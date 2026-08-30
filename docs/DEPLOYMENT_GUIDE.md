@@ -1,7 +1,7 @@
 # 🚀 DEPLOYMENT_GUIDE.md — Prompt Review Service
 
-**Версия:** 2.0
-**Дата:** 2026-07-07
+**Версия:** 2.3
+**Дата:** 2026-08-30
 **Статус:** Инженерное руководство
 
 ---
@@ -497,7 +497,7 @@ pip install -r requirements.txt
 **Ожидаемый результат:**
 
 ```
-Successfully installed fastapi-0.109.0 uvicorn-0.27.0 httpx-0.26.0 pydantic-2.5.0 ...
+Successfully installed fastapi-... uvicorn-... httpx-... pydantic-...
 ```
 
 **Проверка:**
@@ -508,10 +508,10 @@ pip list | grep fastapi
 
 **Критерий успешного завершения:**
 
-Вывод показывает версию fastapi:
+Вывод показывает установленную версию fastapi (точная версия не фиксируется; на момент валидации была 0.141.1):
 
 ```
-fastapi                       0.109.0
+fastapi                       0.x.x
 ```
 
 ---
@@ -571,7 +571,8 @@ curl http://localhost:8000/health
 {
   "status": "ok",
   "backend": "langchain",
-  "backend_available": true
+  "backend_available": true,
+  "demo_mode": false
 }
 ```
 
@@ -607,16 +608,16 @@ curl -X POST http://localhost:8000/review \
     "Укажите ограничения по производительности",
     "Опишите граничные случаи"
   ],
-  "improved_version": "Напиши функцию сортировки списка на Python. Функция должна принимать список чисел и возвращать отсортированный список по возрастанию. Пример: input [3, 1, 2] → output [1, 2, 3]. Обработай пустой список и список из одного элемента."
+  "revised_prompt": "Напиши функцию сортировки списка на Python. Функция должна принимать список чисел и возвращать отсортированный список по возрастанию. Пример: input [3, 1, 2] → output [1, 2, 3]. Обработай пустой список и список из одного элемента."
 }
 ```
 
 **Критерий успешного завершения:**
 
-- ✅ API отвечает на `/health` с `{"status": "ok"}`
+- ✅ API отвечает на `/health` с `{"status": "ok", ...}`
 - ✅ API отвечает на `/review` с JSON-ответом
-- ✅ JSON содержит поля `is_prompt`, `scores`, `recommendations`, `improved_version`
-- ✅ Web UI доступен на http://localhost:8000/ui
+- ✅ JSON содержит поля `is_prompt`, `scores`, `recommendations`, `revised_prompt`
+- ✅ Web UI доступен на http://localhost:8000/ui (браузер следует 307-редиректу на `/ui/`)
 
 **Полный E2E Check:**
 
@@ -630,13 +631,14 @@ curl -X POST http://localhost:8000/review \
   -d '{"prompt_text": "Test prompt", "user_id": "test"}'
 
 # 3. Web UI check
-curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/ui
+# (без `-L`: `/ui` возвращает 307 redirect, 200 отдаёт `/ui/`)
+curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/ui/
 ```
 
 **Ожидаемые результаты:**
 
-1. Health check: `{"status":"ok","backend":"langchain","backend_available":true}`
-2. API test: JSON-ответ с полями `is_prompt`, `scores`, `recommendations`, `improved_version`
+1. Health check: `{"status":"ok","backend":"langchain","backend_available":true,"demo_mode":false}`
+2. API test: JSON-ответ с полями `is_prompt`, `scores`, `recommendations`, `revised_prompt`
 3. Web UI check: HTTP статус `200`
 
 ---
@@ -733,8 +735,9 @@ docker compose -f docker-compose.api.yml down
 ```
 [+] Running 1/1
  ✔ Container prompt-review-api  Removed
- ✔ Network n8n_default          Removed
 ```
+
+> Сеть `n8n_default` **не удаляется** командой `down`: она объявлена внешней (`external: true`) и используется другими стеками, поэтому `docker compose down` её оставляет. Проверить: `docker network ls | grep n8n_default` — сеть на месте.
 
 **Критерий успешного завершения:**
 
@@ -759,15 +762,15 @@ curl http://localhost:8000/health
 # 4. Проверить API docs
 curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/docs
 
-# 5. Проверить Web UI
-curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/ui
+# 5. Проверить Web UI (200 отдаёт `/ui/`; `/ui` без слэша — 307 redirect)
+curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/ui/
 ```
 
 **Ожидаемые результаты:**
 
 1. Статус контейнера: `running (healthy)`
 2. Логи содержат: `Application startup complete`
-3. Health check: `{"status":"ok","backend":"langchain","backend_available":true}`
+3. Health check: `{"status":"ok","backend":"langchain","backend_available":true,"demo_mode":false}`
 4. API docs: HTTP статус `200`
 5. Web UI: HTTP статус `200`
 
@@ -925,15 +928,47 @@ LangFlow — визуальный конструктор AI-Flow. Prompt Review 
 
 **Действие:**
 
-```bash
-cd infra
+1. **Подготовить переменные LangFlow** в `infra/.env` (создан ранее, шаг «Конфигурация» модели Docker). Без них compose-стек не стартует: контейнер упадёт с ошибкой `POSTGRES_PASSWORD is required`.
 
-# Создать сеть (если не существует)
-docker network create n8n_default
+   ```bash
+   cd infra
 
-# Запустить LangFlow
-docker compose -f docker-compose.langflow.yml up -d
-```
+   # Обязательные переменные для docker-compose.langflow.yml
+   cat >> .env << 'EOF'
+
+   # LangFlow infrastructure
+   POSTGRES_USER=langflow
+   POSTGRES_PASSWORD=CHANGE_ME_POSTGRES_PASSWORD
+   LANGFLOW_AUTO_LOGIN=False
+   LANGFLOW_SUPERUSER=CHANGE_ME_SUPERUSER
+   LANGFLOW_SUPERUSER_PASSWORD=CHANGE_ME_SUPERUSER_PASSWORD
+   EOF
+
+   # Сгенерировать значения вместо CHANGE_ME_*:
+   # пароль Postgres:
+   openssl rand -base64 32
+   # Fernet-ключ (обязателен, 44 символа base64):
+   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+   ```
+
+   Вставьте сгенерированные значения в `POSTGRES_PASSWORD`, `LANGFLOW_SUPERUSER`, `LANGFLOW_SUPERUSER_PASSWORD` и добавьте переменную:
+
+   ```bash
+   # LangFlow security (обязателен валидный Fernet-ключ)
+   LANGFLOW_SECRET_KEY=<fernet-key-from-command-above>
+   ```
+
+   Логин/пароль суперпользователя (`LANGFLOW_SUPERUSER`, `LANGFLOW_SUPERUSER_PASSWORD`) понадобятся на шаге «Настройка LangFlow» при первом входе в UI.
+
+2. **Создать сеть и запустить LangFlow:**
+
+   ```bash
+   # Создать сеть (если не существует)
+   docker network create n8n_default
+
+   # Запустить LangFlow
+   docker compose -f docker-compose.langflow.yml up -d
+   ```
 
 **Ожидаемый результат:**
 
@@ -1128,7 +1163,7 @@ curl -X POST http://localhost:8000/review \
 
 **Ожидаемый результат:**
 
-JSON-ответ с полями `is_prompt`, `scores`, `recommendations`, `improved_version`.
+JSON-ответ с полями `is_prompt`, `scores`, `recommendations`, `revised_prompt`.
 
 **Критерий успешного завершения:**
 
@@ -1192,8 +1227,8 @@ curl -X POST http://localhost:8000/review \
 
 1. LangFlow контейнеры: `running (healthy)`
 2. LangFlow UI: HTTP статус `200`
-3. FastAPI health: `{"status":"ok","backend":"langflow","backend_available":true}`
-4. API test: JSON с полями `is_prompt`, `scores`, `recommendations`, `improved_version`
+3. FastAPI health: `{"status":"ok","backend":"langflow","backend_available":true,"demo_mode":false}`
+4. API test: JSON с полями `is_prompt`, `scores`, `recommendations`, `revised_prompt`
 
 ---
 
@@ -1203,7 +1238,7 @@ curl -X POST http://localhost:8000/review \
 
 | Проверка | Команда | Ожидаемый результат |
 |----------|---------|---------------------|
-| Health check | `curl http://localhost:8000/health` | `{"status":"ok","backend":"langchain","backend_available":true}` |
+| Health check | `curl http://localhost:8000/health` | `{"status":"ok","backend":"langchain","backend_available":true,"demo_mode":false}` |
 | API docs | Открыть http://localhost:8000/docs | Swagger UI |
 | Web UI | Открыть http://localhost:8000/ui | Форма ввода промпта |
 | Review endpoint | `POST /review` | JSON-ответ с анализом |
@@ -1223,7 +1258,7 @@ curl -X POST http://localhost:8000/review \
   -d '{"prompt_text":"Test","user_id":"test"}'
 
 # Ожидаемый результат:
-# JSON с полями: is_prompt, scores, recommendations, improved_version
+# JSON с полями: is_prompt, scores, recommendations, revised_prompt
 
 # 3. Web UI check
 curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/ui
@@ -1273,7 +1308,7 @@ curl http://localhost:8000/health
 | Проверка | Команда/Действие | Ожидаемый результат |
 |----------|------------------|---------------------|
 | LangFlow UI | Открыть http://localhost:7860 | Интерфейс LangFlow |
-| Health check | `curl http://localhost:8000/health` | `{"status":"ok","backend":"langflow","backend_available":true}` |
+| Health check | `curl http://localhost:8000/health` | `{"status":"ok","backend":"langflow","backend_available":true,"demo_mode":false}` |
 | Flow импорт | Импорт `langflow/flows/*.json` | Flow появляется в списке |
 | API test | `POST /review` | JSON-ответ с анализом |
 
@@ -1534,7 +1569,7 @@ docker compose -f docker-compose.api.yml exec api ls -la /app/web
 # Проверить структуру Web UI
 ls -la api/web/
 
-# Должны быть: index.html, styles.css, script.js
+# Должны быть: index.html, styles.css, app.js
 ```
 
 ---
@@ -1696,7 +1731,7 @@ docker logs prompt-review-api -f
 |------|------------|------------|
 | `api/web/index.html` | Главная страница Web UI | ✅ Да |
 | `api/web/styles.css` | Стили Web UI | ✅ Да |
-| `api/web/script.js` | JavaScript для Web UI | ✅ Да |
+| `api/web/app.js` | JavaScript для Web UI | ✅ Да |
 
 ### Документация
 
@@ -1885,6 +1920,15 @@ docker volume ls
 - ✅ Расширен troubleshooting с диагностическими командами
 - ✅ Улучшена структура Files Reference
 - ✅ Добавлены проверки для всех компонентов
+
+**2026-08-30 (v2.3):**
+- ✅ Исправления по итогам Deployment Validation (2026-08-30, `DEPLOYMENT_VALIDATION_REPORT.md`):
+- ✅ Поле `revised_prompt` в ожидаемых ответах `/review` (ранее ошибочно `improved_version`)
+- ✅ Поле `demo_mode` в ожидаемых ответах `/health`
+- ✅ Web UI проверка: 200 отдаёт `/ui/` (`/ui` без слэша — 307 redirect)
+- ✅ Files Reference: `api/web/app.js` (ранее `script.js`)
+- ✅ Шаг 5 Model 2: сеть `n8n_default` не удаляется `down` (external-сеть)
+- ✅ LangFlow Шаг 1: подготовка обязательных переменных (`POSTGRES_PASSWORD`, `LANGFLOW_SECRET_KEY`, `LANGFLOW_SUPERUSER*`) до `up -d`
 
 **2026-08-30 (v2.2):**
 - ✅ Добавлен demo-режим: переменные `DEMO_MODE`, `DEMO_SESSION_TTL_MINUTES`, `DEMO_MAX_SESSIONS_PER_IP_PER_HOUR`, `DEMO_MIN_REQUEST_INTERVAL_SECONDS`, `DEMO_MAX_REQUESTS_PER_SESSION`
