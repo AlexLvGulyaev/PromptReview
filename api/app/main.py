@@ -84,6 +84,9 @@ if settings.cors_origins_list:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        # X-Demo-Requests-Remaining не входит в CORS-safelist — без expose
+        # браузерный клиент не сможет читать остаток квоты демо-сессии
+        expose_headers=["X-Demo-Requests-Remaining"],
     )
 
 
