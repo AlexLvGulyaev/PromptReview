@@ -54,7 +54,9 @@ api/
 |----------|--------|----------|
 | `/` | GET | Корневой endpoint, проверка доступности |
 | `/health` | GET | Health check для мониторинга |
-| `/review` | POST | Анализ промпта |
+| `/review` | POST | Анализ промпта (в demo-режиме требует `x-demo-token`) |
+| `/demo/start` | POST | Новая демо-сессия (только при `DEMO_MODE=true`) |
+| `/demo/status` | GET | Состояние демо-сессии (только при `DEMO_MODE=true`) |
 
 ## Запуск локально
 

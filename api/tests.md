@@ -837,3 +837,29 @@ class Config:
 ---
 
 **Тестирование LangFlowAdapter завершено:** 2026-07-05
+---
+
+## 12. Дополнительное тестирование: Demo Limiter (DEMO_MODE=true)
+
+**Дата тестирования:** 2026-08-30
+**Конфигурация:** `DEMO_MODE=true`, `DEMO_MAX_REQUESTS_PER_SESSION=2`, `DEMO_MIN_REQUEST_INTERVAL_SECONDS=0`
+**Метод:** smoke-тест на живом uvicorn-инстансе (порт 18923)
+
+| # | Тест | Ожидаемый результат | Фактический результат | Статус |
+|---|------|---------------------|-----------------------|--------|
+| 1 | GET /health при `DEMO_MODE=true` | `demo_mode: true` | `demo_mode: true` | ✅ PASSED |
+| 2 | POST /review без токена | 403 `demo_token_missing` | 403 `demo_token_missing` | ✅ PASSED |
+| 3 | POST /demo/start | 200, токен + квота | 200, токен + квота | ✅ PASSED |
+| 4 | POST /review с токеном | 200 + `X-Demo-Requests-Remaining` | `x-demo-requests-remaining: 1` | ✅ PASSED |
+| 5 | POST /review, квота исчерпана | 429 `demo_quota_exhausted` | 429 `demo_quota_exhausted` | ✅ PASSED |
+| 6 | GET /demo/status | 200, использовано 2/2 | 200, `requests_used: 2` | ✅ PASSED |
+| 7 | Неизвестный токен | 403 `demo_token_invalid` | 403 `demo_token_invalid` | ✅ PASSED |
+| 8 | Лимит сессий с одного IP (4-я за час) | 429 `demo_session_limit` | 429 на 4-й и 5-й сессии | ✅ PASSED |
+| 9 | `DEMO_MODE=false`: /review без токена | Работает как раньше | Работает как раньше | ✅ PASSED |
+| 10 | `DEMO_MODE=false`: /demo/start | 403 `demo_mode_disabled` | 403 `demo_mode_disabled` | ✅ PASSED |
+
+**Примечания:**
+- Rate limit (минимальный интервал между запросами, 429 + `Retry-After`) проверен конфигурацией `DEMO_MIN_REQUEST_INTERVAL_SECONDS=5` на промежуточных шагах; в основном прогоне отключён (`=0`) для проверки квоты.
+- Тест 10 выполнен на втором инстансе (порт 8010 занят — проверен guard-ответом на основном порту с `DEMO_MODE=false`).
+
+**Итог:** Demo Limiter работает в соответствии с паттерном tokenized demo limiter (Source Case: ai-curator). Backend — единственный источник правды по квоте; при `DEMO_MODE=false` поведение сервиса не изменяется.

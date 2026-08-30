@@ -341,6 +341,34 @@ TELEGRAM_BOT_TOKEN=123456789:ABCdefGHIjklMNOpqrsTUVwxyz
 
 ---
 
+#### `DEMO_MODE`
+
+**Назначение:** Включает demo-режим для публичного Web UI: `POST /review` требует
+демо-токен (`x-demo-token`), включаются квоты и rate limit (см. API_CONTRACT.md,
+эндпоинты `POST /demo/start` и `GET /demo/status`).
+
+**По умолчанию:** `false` — endpoint открыт без токенов (локальная разработка
+и интеграции работают как раньше).
+
+Связанные переменные:
+
+| Переменная | По умолчанию | Описание |
+|------------|--------------|----------|
+| `DEMO_SESSION_TTL_MINUTES` | `60` | Время жизни демо-сессии, минут |
+| `DEMO_MAX_SESSIONS_PER_IP_PER_HOUR` | `3` | Лимит сессий с одного IP за час |
+| `DEMO_MIN_REQUEST_INTERVAL_SECONDS` | `5` | Минимальный интервал между запросами одной сессии, сек |
+| `DEMO_MAX_REQUESTS_PER_SESSION` | `20` | Квота запросов на демо-сессию |
+
+**Пример (публичный демо-инстанс):**
+
+```bash
+DEMO_MODE=true
+DEMO_MAX_REQUESTS_PER_SESSION=20
+DEMO_MAX_SESSIONS_PER_IP_PER_HOUR=3
+```
+
+---
+
 ### Пример .env файла
 
 ```bash
@@ -1857,6 +1885,11 @@ docker volume ls
 - ✅ Расширен troubleshooting с диагностическими командами
 - ✅ Улучшена структура Files Reference
 - ✅ Добавлены проверки для всех компонентов
+
+**2026-08-30 (v2.2):**
+- ✅ Добавлен demo-режим: переменные `DEMO_MODE`, `DEMO_SESSION_TTL_MINUTES`, `DEMO_MAX_SESSIONS_PER_IP_PER_HOUR`, `DEMO_MIN_REQUEST_INTERVAL_SECONDS`, `DEMO_MAX_REQUESTS_PER_SESSION`
+- ✅ Задокументированы эндпоинты `POST /demo/start` и `GET /demo/status` (только при `DEMO_MODE=true`)
+- ✅ По умолчанию `DEMO_MODE=false` — существующие модели развёртывания не изменились
 
 **2026-07-07 (v2.1):**
 - ✅ Добавлена Model 3: LangFlow Development

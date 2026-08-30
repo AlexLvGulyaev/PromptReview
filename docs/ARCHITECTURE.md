@@ -462,6 +462,37 @@ sequenceDiagram
 
 ---
 
+## 🛡️ 8.1. Demo Limiter (demo mode)
+
+Для публичных демо-инстансов Web UI (`DEMO_MODE=true`) перед адаптером включается
+in-memory demo limiter (`api/app/demo.py`, паттерн tokenized demo limiter):
+
+```
+Web UI ── POST /demo/start ──> DemoLimiterStore (in-memory)
+       <── token, quota
+Web UI ── POST /review + x-demo-token ──> require_demo_session() ──> BackendAdapter
+       <── PromptReviewResponse + X-Demo-Requests-Remaining
+```
+
+**Три уровня ограничений** (backend — единственный источник правды по квоте):
+1. Максимум сессий с одного IP за час (`DEMO_MAX_SESSIONS_PER_IP_PER_HOUR`) — 429.
+2. Минимальный интервал между запросами сессии (`DEMO_MIN_REQUEST_INTERVAL_SECONDS`) — 429 + `Retry-After`.
+3. Квота запросов на сессию (`DEMO_MAX_REQUESTS_PER_SESSION`) — 429.
+Дополнительно: TTL сессии (`DEMO_SESSION_TTL_MINUTES`) — 401.
+
+**Ошибки:** 403 (нет/неизвестный токен), 401 (истёкшая сессия), 429 (rate limit / квота / лимит сессий на IP).
+
+Web UI показывает демо-бейдж (остаток квоты, таймер до истечения), кнопка «⟲»
+начинает новую сессию; при исчерпанной квоте ввод блокируется.
+
+**Почему in-memory:** Prompt Review Service не имеет БД, а демо-сессии эфемерны
+(TTL ~1 час); хранение в процессе не добавляет зависимостей и не усложняет
+развёртывание. Рестарт API сбрасывает сессии — Web UI прозрачно стартует новую.
+При `DEMO_MODE=false` компонент полностью пассивен: поведение локальных
+развёртываний и интеграций не меняется.
+
+---
+
 ## 📌 9. Source of Truth
 
 ### Код

@@ -5,6 +5,8 @@ FastAPI сервер для Prompt Review Service.
 - GET / - корневой endpoint
 - GET /health - health check
 - POST /review - анализ промпта
+- POST /demo/start - новая демо-сессия (DEMO_MODE)
+- GET /demo/status - состояние демо-сессии (DEMO_MODE)
 """
 
 import time
@@ -13,7 +15,7 @@ from contextlib import asynccontextmanager
 from typing import Optional
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -25,8 +27,16 @@ from .schemas import (
     PromptReviewResponse,
     ErrorResponse,
     HealthResponse,
+    DemoStartResponse,
+    DemoStatusResponse,
 )
 from .adapters import get_backend_adapter, BackendAdapter
+from .demo import (
+    get_client_ip,
+    is_demo_mode_enabled,
+    require_demo_session,
+    store,
+)
 
 logger = get_logger(__name__)
 
@@ -123,17 +133,23 @@ async def health():
         status="ok",
         backend=settings.BACKEND_TYPE,
         backend_available=backend_available,
+        demo_mode=settings.DEMO_MODE,
     )
 
 
 @app.post("/review", response_model=PromptReviewResponse)
-async def review(request: PromptReviewRequest, req: Request):
+async def review(request: PromptReviewRequest, req: Request, response: Response):
     """
     Анализ промпта.
 
+    При включённом DEMO_MODE требует заголовок x-demo-token (демо-сессия),
+    списывает один запрос из квоты и возвращает остаток в заголовке
+    X-Demo-Requests-Remaining.
+
     Args:
         request: Запрос на анализ
-        req: FastAPI Request (для доступа к app.state)
+        req: FastAPI Request (клиент, заголовки)
+        response: Response (демо-заголовки остатка квоты)
 
     Returns:
         PromptReviewResponse: Результат анализа
@@ -143,6 +159,11 @@ async def review(request: PromptReviewRequest, req: Request):
     """
     # Генерируем request_id если не указан
     request_id = request.request_id or f"req_{int(time.time() * 1000)}_{uuid.uuid4().hex[:8]}"
+
+    # Demo mode: проверка токена и списание квоты до похода в LLM
+    if is_demo_mode_enabled():
+        demo_session = await require_demo_session(req)
+        response.headers["X-Demo-Requests-Remaining"] = str(demo_session.requests_remaining)
 
     # Логируем входящий запрос
     logger.info(
@@ -207,6 +228,63 @@ async def review(request: PromptReviewRequest, req: Request):
 
 
 # ============================================================================
+# DEMO SESSION ENDPOINTS (public Web UI, DEMO_MODE)
+# ============================================================================
+
+
+def _ensure_demo_enabled() -> None:
+    """Запретить demo-эндпоинты, если DEMO_MODE выключен."""
+    if not settings.DEMO_MODE:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "demo_mode_disabled",
+                "message": "Demo mode is not enabled on this instance",
+            },
+        )
+
+
+@app.post("/demo/start", response_model=DemoStartResponse)
+async def demo_start(req: Request):
+    """
+    Создать новую демо-сессию для Web UI.
+
+    Возвращает opaque-токен, который нужно передавать в заголовке
+    ``x-demo-token`` на каждый POST /review. Ограничено лимитом
+    сессий с одного IP (DEMO_MAX_SESSIONS_PER_IP_PER_HOUR).
+    """
+    _ensure_demo_enabled()
+    session = await store.create_session(client_ip=get_client_ip(req))
+    return DemoStartResponse(
+        token=session.token,
+        requests_limit=session.requests_limit,
+        requests_remaining=session.requests_limit,
+        expires_at=session.expires_at.isoformat(),
+        interval_seconds=settings.DEMO_MIN_REQUEST_INTERVAL_SECONDS,
+    )
+
+
+@app.get("/demo/status", response_model=DemoStatusResponse)
+async def demo_status(req: Request):
+    """
+    Состояние демо-сессии: остаток квоты и время истечения.
+
+    Токен читается из заголовка ``x-demo-token``.
+    """
+    _ensure_demo_enabled()
+    token = req.headers.get("x-demo-token")
+    session = await store.get_status(token)
+    return DemoStatusResponse(
+        token=session.token,
+        requests_used=session.requests_used,
+        requests_limit=session.requests_limit,
+        requests_remaining=session.requests_remaining,
+        expires_at=session.expires_at.isoformat() if session.expires_at else "",
+        is_active=session.is_active and not session.is_expired,
+    )
+
+
+# ============================================================================
 # EXCEPTION HANDLERS
 # ============================================================================
 
@@ -215,6 +293,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     """Обработчик HTTP исключений."""
     return JSONResponse(
         status_code=exc.status_code,
+        headers=exc.headers or {},
         content={
             "error": exc.detail.get("error", "http_error") if isinstance(exc.detail, dict) else "http_error",
             "message": exc.detail.get("message", str(exc.detail)) if isinstance(exc.detail, dict) else str(exc.detail),

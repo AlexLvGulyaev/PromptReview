@@ -18,7 +18,8 @@ const CONFIG = {
             : window.location.origin),
     TIMEOUT: 60000, // 60 seconds
     MIN_TEXT_LENGTH: 10,
-    MAX_TEXT_LENGTH: 10000
+    MAX_TEXT_LENGTH: 10000,
+    DEMO_TOKEN_KEY: 'promptReviewDemoToken'
 };
 
 // ============================================================================
@@ -74,7 +75,14 @@ const elements = {
     // Improved
     improvedSection: document.getElementById('improved-section'),
     improvedPrompt: document.getElementById('improved-prompt'),
-    copyBtn: document.getElementById('copy-btn')
+    copyBtn: document.getElementById('copy-btn'),
+
+    // Demo session (demo mode)
+    demoBadge: document.getElementById('demo-badge'),
+    demoDot: document.getElementById('demo-dot'),
+    demoDetail: document.getElementById('demo-detail'),
+    demoNewBtn: document.getElementById('demo-new-btn'),
+    demoExhausted: document.getElementById('demo-exhausted')
 };
 
 // ============================================================================
@@ -83,6 +91,10 @@ const elements = {
 
 let currentText = '';
 let isAnalyzing = false;
+
+// Demo session (demo mode)
+let demoSession = null;       // {token, requestsRemaining, expiresAt, intervalSeconds}
+let demoTimerId = null;
 
 // ============================================================================
 // API FUNCTIONS
@@ -115,12 +127,17 @@ async function checkAPIStatus() {
  * Анализ промпта через API.
  */
 async function analyzePrompt(text) {
+    const headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    };
+    if (demoSession && demoSession.token) {
+        headers['x-demo-token'] = demoSession.token;
+    }
+
     const response = await fetch(`${CONFIG.API_URL}/review`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
+        headers: headers,
         body: JSON.stringify({
             prompt_text: text,
             user_id: generateUserId(),
@@ -131,10 +148,255 @@ async function analyzePrompt(text) {
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail?.message || `Ошибка сервера: ${response.status}`);
+        handleDemoErrors(response, errorData);
+        throw new Error(errorData.message || `Ошибка сервера: ${response.status}`);
+    }
+
+    // Обновляем остаток квоты из заголовка ответа
+    const remaining = response.headers.get('x-demo-requests-remaining');
+    if (remaining !== null && demoSession) {
+        demoSession.requestsRemaining = parseInt(remaining, 10);
+        updateDemoBadge();
+        setDemoInputLock(demoSession.requestsRemaining <= 0);
+        if (demoSession.requestsRemaining <= 0) {
+            showDemoExhausted(true);
+        }
     }
 
     return await response.json();
+}
+
+// ============================================================================
+// DEMO SESSION (demo mode)
+// ============================================================================
+
+/**
+ * Проверка/восстановление демо-сессии при загрузке страницы.
+ */
+async function initDemoSession() {
+    try {
+        const health = await fetch(`${CONFIG.API_URL}/health`, {
+            headers: { 'Accept': 'application/json' }
+        });
+        if (!health.ok || !(await health.json()).demo_mode) {
+            setDemoVisible(false);
+            return;
+        }
+
+        const storedToken = localStorage.getItem(CONFIG.DEMO_TOKEN_KEY);
+        if (storedToken) {
+            const status = await getDemoStatus(storedToken);
+            if (status && status.is_active && status.requests_remaining > 0) {
+                demoSession = {
+                    token: storedToken,
+                    requestsRemaining: status.requests_remaining,
+                    requestsLimit: status.requests_limit,
+                    expiresAt: new Date(status.expires_at),
+                    intervalSeconds: 0
+                };
+                updateDemoBadge();
+                setDemoInputLock(demoSession.requestsRemaining <= 0);
+                showDemoExhausted(demoSession.requestsRemaining <= 0);
+                return;
+            }
+        }
+
+        // Токена нет или он истёк — новая сессия
+        localStorage.removeItem(CONFIG.DEMO_TOKEN_KEY);
+        await startDemoSession();
+    } catch (error) {
+        console.error('Demo session init error:', error);
+        setDemoVisible(false);
+    }
+}
+
+/**
+ * Создание новой демо-сессии.
+ */
+async function startDemoSession() {
+    const response = await fetch(`${CONFIG.API_URL}/demo/start`, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        // 429: слишком много сессий с этого IP — сессию не даём
+        setDemoDetail(errorData.message || 'Лимит демо-сессий. Попробуйте позже.');
+        setDemoDotState(false);
+        showDemoExhausted(false);
+        setDemoInputLock(true);
+        return;
+    }
+
+    const data = await response.json();
+    demoSession = {
+        token: data.token,
+        requestsRemaining: data.requests_remaining,
+        requestsLimit: data.requests_limit,
+        expiresAt: new Date(data.expires_at),
+        intervalSeconds: data.interval_seconds || 0
+    };
+    localStorage.setItem(CONFIG.DEMO_TOKEN_KEY, data.token);
+
+    updateDemoBadge();
+    showDemoExhausted(false);
+    setDemoInputLock(false);
+}
+
+/**
+ * Статус демо-сессии по токену.
+ */
+async function getDemoStatus(token) {
+    const response = await fetch(`${CONFIG.API_URL}/demo/status`, {
+        headers: {
+            'Accept': 'application/json',
+            'x-demo-token': token
+        }
+    });
+    if (!response.ok) return null;
+    return await response.json();
+}
+
+/**
+ * Кнопка «Новая демо-сессия».
+ */
+async function handleDemoNewSession() {
+    elements.demoNewBtn.disabled = true;
+    try {
+        await startDemoSession();
+    } catch (error) {
+        console.error('New demo session error:', error);
+    } finally {
+        elements.demoNewBtn.disabled = false;
+    }
+}
+
+/**
+ * Маппинг демо-ошибок API в UX.
+ */
+function handleDemoErrors(response, errorData) {
+    if (!demoSession) return;
+
+    if (response.status === 401) {
+        // Сессия истекла — сбрасываем, пользователь может начать новую
+        localStorage.removeItem(CONFIG.DEMO_TOKEN_KEY);
+        demoSession = null;
+        setDemoDetail('Сессия истекла — нажмите ⟲');
+        setDemoDotState(false);
+        setDemoInputLock(true);
+        return;
+    }
+
+    if (response.status === 429) {
+        const code = errorData.error || '';
+        if (code === 'demo_quota_exhausted') {
+            demoSession.requestsRemaining = 0;
+            updateDemoBadge();
+            setDemoInputLock(true);
+            showDemoExhausted(true);
+        }
+        // demo_rate_limit — просто показываем сообщение из ответа (throw выше)
+    }
+    // 403 demo_token_missing/invalid — токен неизвестен серверу (рестарт API):
+    if (response.status === 403) {
+        localStorage.removeItem(CONFIG.DEMO_TOKEN_KEY);
+        demoSession = null;
+        setDemoDetail('Токен недействителен — нажмите ⟲');
+        setDemoDotState(false);
+    }
+}
+
+/**
+ * Показать/скрыть демо-бейдж.
+ */
+function setDemoVisible(visible) {
+    elements.demoBadge.style.display = visible ? 'flex' : 'none';
+    if (!visible) {
+        showDemoExhausted(false);
+        setDemoInputLock(false);
+        demoSession = null;
+     }
+}
+
+/**
+ * Обновление содержимого бейджа.
+ */
+function updateDemoBadge() {
+    if (!demoSession) {
+        setDemoVisible(false);
+        return;
+    }
+    setDemoVisible(true);
+    setDemoDotState(true);
+    startDemoTimer();
+    renderDemoDetail();
+}
+
+/**
+ * Текст бейджа: остаток запросов + таймер до истечения.
+ */
+function renderDemoDetail() {
+    if (!demoSession) return;
+    const minutesLeft = Math.max(0, Math.floor((demoSession.expiresAt - Date.now()) / 60000));
+    const timer = `${minutesLeft} мин`;
+    if (demoSession.requestsRemaining <= 0) {
+        elements.demoDetail.textContent = 'квота исчерпана';
+    } else {
+        elements.demoDetail.textContent = `осталось ${demoSession.requestsRemaining}/${demoSession.requestsLimit} · ${timer}`;
+    }
+}
+
+/**
+ * Живой таймер до истечения сессии (обновление раз в минуту достаточно).
+ */
+function startDemoTimer() {
+    if (demoTimerId) clearInterval(demoTimerId);
+    demoTimerId = setInterval(() => {
+        if (!demoSession) {
+            clearInterval(demoTimerId);
+            demoTimerId = null;
+            return;
+        }
+        const msLeft = demoSession.expiresAt - Date.now();
+        if (msLeft <= 0) {
+            clearInterval(demoTimerId);
+            demoTimerId = null;
+            setDemoDetail('Сессия истекла — нажмите ⟲');
+            setDemoDotState(false);
+            return;
+        }
+        renderDemoDetail();
+    }, 30000);
+}
+
+/**
+ * Состояние точки-индикатора бейджа.
+ */
+function setDemoDotState(active) {
+    elements.demoDot.classList.toggle('expired', !active);
+}
+
+/**
+ * Краткий текст бейджа (для ошибок без сессии).
+ */
+function setDemoDetail(text) {
+    elements.demoBadge.style.display = 'flex';
+    elements.demoDetail.textContent = text;
+}
+
+/**
+ * Блокировка ввода при исчерпанной квоте.
+ */
+function setDemoInputLock(locked) {
+    elements.analyzeBtn.disabled = locked || isAnalyzing;
+}
+
+/**
+ * Баннер «квота исчерпана».
+ */
+function showDemoExhausted(visible) {
+    elements.demoExhausted.style.display = visible ? 'flex' : 'none';
 }
 
 // ============================================================================
@@ -454,7 +716,9 @@ async function handleAnalyze() {
         showError(error.message || 'Произошла неизвестная ошибка. Попробуйте позже.');
     } finally {
         isAnalyzing = false;
-        elements.analyzeBtn.disabled = false;
+        // Демо-блокировка (квота исчерпана / истёкшая сессия) перекрывает retry
+        const demoLocked = demoSession && demoSession.requestsRemaining <= 0;
+        elements.analyzeBtn.disabled = Boolean(demoLocked);
     }
 }
 
@@ -496,11 +760,15 @@ function init() {
     checkAPIStatus();
     setInterval(checkAPIStatus, 30000); // Каждые 30 секунд
 
+    // Демо-сессия (если включён demo mode)
+    initDemoSession();
+
     // Привязка обработчиков
     elements.promptInput.addEventListener('input', handleInput);
     elements.analyzeBtn.addEventListener('click', handleAnalyze);
     elements.errorRetryBtn.addEventListener('click', handleRetry);
     elements.copyBtn.addEventListener('click', handleCopy);
+    elements.demoNewBtn.addEventListener('click', handleDemoNewSession);
 
     // Инициализация счётчика
     updateCharCount();

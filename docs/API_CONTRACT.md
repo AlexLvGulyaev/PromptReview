@@ -59,6 +59,7 @@ Health check для мониторинга доступности сервиса
 | `status` | string | Статус: "ok" или "error" |
 | `backend` | string \| null | Тип backend (langchain, langflow) |
 | `backend_available` | boolean \| null | Доступность backend |
+| `demo_mode` | boolean | Включён ли demo-режим (токены и квоты на `/review`) |
 
 ### Пример ответа
 
@@ -66,7 +67,8 @@ Health check для мониторинга доступности сервиса
 {
   "status": "ok",
   "backend": "langchain",
-  "backend_available": true
+  "backend_available": true,
+  "demo_mode": false
 }
 ```
 
@@ -119,6 +121,22 @@ class Source(str, Enum):
 - Web UI: `{"prompt_text": "...", "user_id": "user123", "source": "web"}`
 - Telegram Bot: `{"prompt_text": "...", "user_id": "tg_456", "source": "telegram"}`
 - n8n Workflow: `{"prompt_text": "...", "user_id": "n8n_789", "source": "n8n"}`
+
+---
+
+#### Demo-режим (env `DEMO_MODE=true`)
+
+На публичных демо-инстансах Web UI endpoint защищён демо-квотами:
+
+- Каждый запрос требует заголовок `x-demo-token` (см. POST /demo/start).
+- Без токена — **403** `demo_token_missing`; неизвестный токен — **403** `demo_token_invalid`.
+- Истёкшая сессия — **401** `demo_session_expired`.
+- Слишком частые запросы — **429** `demo_rate_limit` (+ заголовок `Retry-After`).
+- Исчерпанная квота — **429** `demo_quota_exhausted`.
+- Успешный ответ содержит заголовок `X-Demo-Requests-Remaining` с остатком квоты.
+
+При `DEMO_MODE=false` (значение по умолчанию) endpoint работает без токенов —
+поведение локальных развёртываний и интеграций не меняется.
 
 ---
 
@@ -279,7 +297,69 @@ class PromptMetrics(BaseModel):
 
 ---
 
+## 🔌 Endpoint: POST /demo/start
+
+Создаёт новую демо-сессию для Web UI. Доступен только при `DEMO_MODE=true`
+(иначе — **403** `demo_mode_disabled`).
+
+### Запрос
+
+Параметров не требует. Ограничение: не более `DEMO_MAX_SESSIONS_PER_IP_PER_HOUR`
+сессий с одного IP за час (иначе — **429** `demo_session_limit`).
+
+### Ответ: DemoStartResponse
+
+```json
+{
+  "token": "6a10e14fa412...30",
+  "requests_limit": 20,
+  "requests_remaining": 20,
+  "expires_at": "2026-08-30T02:22:01.812234+00:00",
+  "interval_seconds": 5
+}
+```
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| `token` | string | Opaque-токен; передавать в заголовке `x-demo-token` на `POST /review` |
+| `requests_limit` | integer | Квота запросов на сессию (`DEMO_MAX_REQUESTS_PER_SESSION`) |
+| `requests_remaining` | integer | Оставшиеся запросы |
+| `expires_at` | string | ISO-время истечения сессии (`DEMO_SESSION_TTL_MINUTES`) |
+| `interval_seconds` | integer | Минимальный интервал между запросами, сек |
+
+---
+
+## 🔌 Endpoint: GET /demo/status
+
+Состояние демо-сессии (без списания квоты). Доступен только при `DEMO_MODE=true`.
+
+### Запрос
+
+Токен передаётся в заголовке `x-demo-token` (без него — **401**,
+неизвестный токен — **404**).
+
+### Ответ: DemoStatusResponse
+
+```json
+{
+  "token": "6a10e14fa412...30",
+  "requests_used": 2,
+  "requests_limit": 20,
+  "requests_remaining": 18,
+  "expires_at": "2026-08-30T02:22:01.812234+00:00",
+  "is_active": true
+}
+```
+
+**Замечание по реализации:** демо-сессии хранятся в памяти процесса API
+(паттерн tokenized demo limiter, адаптированный для stateless-сервиса без БД).
+Рестарт API сбрасывает активные демо-сессии — Web UI восстановит сессию
+новым токеном автоматически.
+
+---
+
 ## 📄 Примеры запросов и ответов
+
 
 ### Пример 1: Промпт (is_prompt = true)
 

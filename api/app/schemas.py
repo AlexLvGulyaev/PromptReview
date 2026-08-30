@@ -1,7 +1,7 @@
 """
 Pydantic-модели для Prompt Review Service API.
 
-Соответствуют JSON-контракту, зафиксированному в SPEC.md и PEl05.
+Соответствуют JSON-контракту, зафиксированному в SPEC.md.
 """
 
 from pydantic import BaseModel, Field
@@ -196,3 +196,27 @@ class HealthResponse(BaseModel):
     status: str = Field(..., description="Статус: ok или error")
     backend: Optional[str] = Field(default=None, description="Тип backend")
     backend_available: Optional[bool] = Field(default=None, description="Доступность backend")
+    demo_mode: bool = Field(default=False, description="Включён ли demo-режим (токены и квоты на /review)")
+
+
+# ============================================================================
+# DEMO SESSIONS (public Web UI)
+# ============================================================================
+
+class DemoStartResponse(BaseModel):
+    """Новая демо-сессия: токен и квота."""
+    token: str = Field(..., description="Opaque-токен для заголовка x-demo-token")
+    requests_limit: int = Field(..., description="Квота запросов на сессию")
+    requests_remaining: int = Field(..., description="Оставшиеся запросы")
+    expires_at: str = Field(..., description="ISO-время истечения сессии")
+    interval_seconds: int = Field(..., description="Минимальный интервал между запросами, сек")
+
+
+class DemoStatusResponse(BaseModel):
+    """Состояние демо-сессии."""
+    token: str = Field(..., description="Демо-токен из заголовка x-demo-token")
+    requests_used: int = Field(..., description="Использованные запросы")
+    requests_limit: int = Field(..., description="Квота запросов на сессию")
+    requests_remaining: int = Field(..., description="Оставшиеся запросы")
+    expires_at: str = Field(..., description="ISO-время истечения сессии")
+    is_active: bool = Field(..., description="Активна ли сессия")

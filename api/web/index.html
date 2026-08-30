@@ -26,6 +26,13 @@
                 </div>
             </div>
             <div class="header__status">
+                <!-- Demo session badge (demo mode) -->
+                <div class="demo-badge" id="demo-badge" style="display: none;" title="Демо-сессия с ограниченной квотой">
+                    <span class="demo-badge__dot" id="demo-dot"></span>
+                    <span class="demo-badge__label">Demo</span>
+                    <span class="demo-badge__detail" id="demo-detail"></span>
+                    <button type="button" class="demo-badge__new" id="demo-new-btn" title="Начать новую демо-сессию">⟲</button>
+                </div>
                 <div class="status-indicator" id="status-indicator"></div>
                 <span class="status-text" id="status-text">Проверка статуса...</span>
             </div>
@@ -41,6 +48,12 @@
                         Отправьте текст, и я проанализирую, является ли он промптом и насколько он хорош.
                         Получите оценки по критериям, рекомендации и улучшенную редакцию.
                     </p>
+
+                    <!-- Demo quota exhausted notice -->
+                    <div class="demo-exhausted" id="demo-exhausted" style="display: none;">
+                        Квота демо-сессии исчерпана. Нажмите ⟲ в шапке, чтобы начать
+                        новую демо-сессию.
+                    </div>
 
                     <div class="input-form">
                         <textarea

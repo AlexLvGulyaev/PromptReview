@@ -36,6 +36,13 @@ class Settings(BaseSettings):
     REQUEST_TIMEOUT_SECONDS: int = 30
     MAX_PROMPT_LENGTH: int = 10000
 
+    # Demo mode (public Web UI demo instances)
+    DEMO_MODE: bool = False  # true: токен демо-сессии обязателен на POST /review
+    DEMO_SESSION_TTL_MINUTES: int = 60
+    DEMO_MAX_SESSIONS_PER_IP_PER_HOUR: int = 3
+    DEMO_MIN_REQUEST_INTERVAL_SECONDS: int = 5
+    DEMO_MAX_REQUESTS_PER_SESSION: int = 20
+
     @property
     def cors_origins_list(self) -> List[str]:
         """Парсить CORS_ORIGINS как список."""
