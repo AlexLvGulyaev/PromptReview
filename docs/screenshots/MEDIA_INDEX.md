@@ -16,7 +16,7 @@
 
 **Принципы:**
 - Медиаматериалы — общие ресурсы проекта, не привязаны к одному документу
-- Имена файлов на английском языке с префиксом урока
+- Имена файлов по схеме `{PROJECT}_{VERSION}_{CATEGORY}_{DESCRIPTION}`
 - Каждый медиаматериал имеет уникальный идентификатор (IMG-XXX)
 - Матрица использования определяет, в каких документах используется каждый медиаматериал
 
@@ -58,13 +58,13 @@
 
 ## Схема нейминга
 
-**Формат:** `{LESSON}_{CATEGORY}_{DESCRIPTION}.png`
+**Формат:** `{PROJECT}_{VERSION}_{CATEGORY}_{DESCRIPTION}.png`
 
-**Префиксы уроков:**
-- `PEL03` — LangFlow MVP
-- `PEL04` — LangChain
-- `PEL05` — n8n Integration
-- `PEL06` — FastAPI Production
+**Версии проекта:**
+- `v1` — LangFlow MVP
+- `v2` — LangChain
+- `v3` — n8n Integration
+- `v4` — FastAPI Production (каноническая реализация)
 
 **Категории:**
 - `ui` — пользовательские интерфейсы (Web UI, Telegram Bot)
@@ -78,77 +78,77 @@
 
 ## Каталог изображений
 
-### PEL03: LangFlow MVP
+### v1: LangFlow MVP
 
 | ID | Файл | Категория | Описание |
 |----|------|-----------|----------|
-| IMG-001 | `PEL03_ui_presail.png` | ui | LangFlow интерфейс (Preseil) |
-| IMG-002 | `PEL03_ui_student.png` | ui | LangFlow интерфейс (Student) |
+| IMG-001 | `PR_v1_ui_langflow_presail.png` | ui | LangFlow интерфейс (Preseil) |
+| IMG-002 | `PR_v1_ui_langflow_student.png` | ui | LangFlow интерфейс (Student) |
 
 ---
 
-### PEL04: LangChain
+### v2: LangChain
 
 | ID | Файл | Категория | Описание |
 |----|------|-----------|----------|
-| IMG-003 | `PEL04_flow_agent_decision.png` | flow | Диаграмма принятия решений агентом |
-| IMG-004 | `PEL04_ui_agentexecutor_main.png` | ui | AgentExecutor главный экран |
-| IMG-005 | `PEL04_ui_agentexecutor_step1.png` | ui | AgentExecutor шаг 1 |
-| IMG-006 | `PEL04_ui_agentexecutor_step2.png` | ui | AgentExecutor шаг 2 |
-| IMG-007 | `PEL04_result_quality.png` | result | Пример ответа (качественный) |
-| IMG-008 | `PEL04_result_detailed.png` | result | Пример ответа (детальный) |
-| IMG-009 | `PEL04_ui_chain_mode.png` | ui | Chain mode интерфейс |
-| IMG-010 | `PEL04_arch_prompt_structure.png` | arch | Структура промпта |
-| IMG-011 | `PEL04_arch_task_dispatcher.png` | arch | Диспетчер задач |
-| IMG-012 | `PEL04_arch_memory.png` | arch | Архитектура памяти |
-| IMG-013 | `PEL04_arch_resources.png` | arch | Ресурсы при вызове |
+| IMG-003 | `PR_v2_flow_agent_decision.png` | flow | Диаграмма принятия решений агентом |
+| IMG-004 | `PR_v2_ui_agentexecutor_main.png` | ui | AgentExecutor главный экран |
+| IMG-005 | `PR_v2_ui_agentexecutor_step1.png` | ui | AgentExecutor шаг 1 |
+| IMG-006 | `PR_v2_ui_agentexecutor_step2.png` | ui | AgentExecutor шаг 2 |
+| IMG-007 | `PR_v2_result_quality.png` | result | Пример ответа (качественный) |
+| IMG-008 | `PR_v2_result_detailed.png` | result | Пример ответа (детальный) |
+| IMG-009 | `PR_v2_ui_chain_mode.png` | ui | Chain mode интерфейс |
+| IMG-010 | `PR_v2_arch_prompt_structure.png` | arch | Структура промпта |
+| IMG-011 | `PR_v2_arch_task_dispatcher.png` | arch | Диспетчер задач |
+| IMG-012 | `PR_v2_arch_memory.png` | arch | Архитектура памяти |
+| IMG-013 | `PR_v2_arch_resources.png` | arch | Ресурсы при вызове |
 
 ---
 
-### PEL05: n8n Integration
+### v3: n8n Integration
 
 | ID | Файл | Категория | Описание |
 |----|------|-----------|----------|
-| IMG-014 | `PEL05_flow_langflow_scenario1.png` | flow | Workflow: n8n + LangFlow |
-| IMG-015 | `PEL05_flow_langflow_reuse.png` | flow | Переиспользование Flow из PEL03 |
-| IMG-016 | `PEL05_arch_structured_output.png` | arch | Structured Output Advanced |
-| IMG-017 | `PEL05_arch_prompt_flow.png` | arch | Структура промпта в Flow |
-| IMG-018 | `PEL05_arch_schema.png` | arch | JSON Schema для Structured Output |
-| IMG-019 | `PEL05_flow_langchain_scenario2.png` | flow | Workflow: n8n + LangChain |
-| IMG-020 | `PEL05_result_not_prompt.png` | result | Результат: не промпт |
-| IMG-021 | `PEL05_flow_langflow_full.png` | flow | Полный workflow n8n + LangFlow |
-| IMG-022 | `PEL05_result_langflow_not_prompt.png` | result | LangFlow: не промпт |
+| IMG-014 | `PR_v3_flow_langflow_scenario1.png` | flow | Workflow: n8n + LangFlow |
+| IMG-015 | `PR_v3_flow_langflow_reuse.png` | flow | Переиспользование Flow v1 |
+| IMG-016 | `PR_v3_arch_structured_output.png` | arch | Structured Output Advanced |
+| IMG-017 | `PR_v3_arch_prompt_flow.png` | arch | Структура промпта в Flow |
+| IMG-018 | `PR_v3_arch_schema.png` | arch | JSON Schema для Structured Output |
+| IMG-019 | `PR_v3_flow_langchain_scenario2.png` | flow | Workflow: n8n + LangChain |
+| IMG-020 | `PR_v3_result_not_prompt.png` | result | Результат: не промпт |
+| IMG-021 | `PR_v3_flow_langflow_full.png` | flow | Полный workflow n8n + LangFlow |
+| IMG-022 | `PR_v3_result_langflow_not_prompt.png` | result | LangFlow: не промпт |
 
 ---
 
-### PEL06: FastAPI Production
+### v4: FastAPI Production
 
 | ID | Файл | Категория | Описание |
 |----|------|-----------|----------|
-| IMG-023 | `PEL06_api_health_check.png` | api | Swagger UI: GET /health |
-| IMG-024 | `PEL06_api_swagger_docs.png` | api | Swagger UI: документация API |
-| IMG-025 | `PEL06_api_review_endpoint.png` | api | Swagger UI: POST /review |
-| IMG-026 | `PEL06_api_response_example.png` | api | Пример ответа API |
-| IMG-027 | `PEL06_ui_telegram_bot.png` | ui | Telegram Bot интерфейс |
-| IMG-028 | `PEL06_result_telegram_not_prompt.png` | result | Telegram: не промпт |
-| IMG-029 | `PEL06_result_telegram_analysis.png` | result | Telegram: анализ промпта |
-| IMG-030 | `PEL06_ui_web_form.png` | ui | Web UI форма |
-| IMG-031 | `PEL06_result_web_not_prompt.png` | result | Web UI: не промпт |
-| IMG-032 | `PEL06_result_web_analysis1.png` | result | Web UI: анализ промпта (1) |
-| IMG-033 | `PEL06_result_web_analysis2.png` | result | Web UI: анализ промпта (2) |
+| IMG-023 | `PR_v4_api_health_check.png` | api | Swagger UI: GET /health |
+| IMG-024 | `PR_v4_api_swagger_docs.png` | api | Swagger UI: документация API |
+| IMG-025 | `PR_v4_api_review_endpoint.png` | api | Swagger UI: POST /review |
+| IMG-026 | `PR_v4_api_response_example.png` | api | Пример ответа API |
+| IMG-027 | `PR_v4_ui_telegram_bot.png` | ui | Telegram Bot интерфейс |
+| IMG-028 | `PR_v4_result_telegram_not_prompt.png` | result | Telegram: не промпт |
+| IMG-029 | `PR_v4_result_telegram_analysis.png` | result | Telegram: анализ промпта |
+| IMG-030 | `PR_v4_ui_web_form.png` | ui | Web UI форма |
+| IMG-031 | `PR_v4_result_web_not_prompt.png` | result | Web UI: не промпт |
+| IMG-032 | `PR_v4_result_web_analysis1.png` | result | Web UI: анализ промпта (1) |
+| IMG-033 | `PR_v4_result_web_analysis2.png` | result | Web UI: анализ промпта (2) |
 
 ---
 
 ## Статистика
 
-### По урокам
+### По версиям
 
-| Урок | Изображения | Количество |
-|------|-------------|------------|
-| PEL03 (LangFlow) | IMG-001, IMG-002 | 2 |
-| PEL04 (LangChain) | IMG-003 – IMG-013 | 11 |
-| PEL05 (n8n) | IMG-014 – IMG-022 | 9 |
-| PEL06 (FastAPI) | IMG-023 – IMG-033 | 11 |
+| Версия | Изображения | Количество |
+|--------|-------------|------------|
+| v1 (LangFlow) | IMG-001, IMG-002 | 2 |
+| v2 (LangChain) | IMG-003 – IMG-013 | 11 |
+| v3 (n8n) | IMG-014 – IMG-022 | 9 |
+| v4 (FastAPI) | IMG-023 – IMG-033 | 11 |
 | **Всего** | | **33** |
 
 ### По категориям
@@ -172,6 +172,8 @@
 | **README.md** | IMG-002, IMG-009, IMG-019, IMG-027, IMG-029, IMG-032-033 | Демонстрация эволюции проекта и интерфейсов |
 | **USER_GUIDE.md** | IMG-027, IMG-028-033 | Инструкции по использованию Web UI и Telegram |
 | **ARCHITECTURE.md** | IMG-027, IMG-029-030, IMG-032-033 | Демонстрация интерфейсов в разделе User Interfaces |
+| **BUSINESS_VALUE.md** | — | Customer-facing слой без технических скриншотов (демонстрация — в SYSTEM_DEMO.md) |
+| **SYSTEM_DEMO.md** | IMG-024, IMG-025, IMG-027, IMG-029, IMG-030, IMG-031-033 | Демонстрация продукта: сценарии Web UI, Telegram, API, пограничный случай |
 | **langflow/README.md** | IMG-001-002 | Демонстрация LangFlow интерфейсов |
 | **langchain/README.md** | IMG-004, IMG-007-009 | Демонстрация LangChain интерфейсов и результатов |
 | **n8n/README.md** | IMG-014, IMG-019, IMG-021, IMG-020, IMG-022 | Демонстрация workflow и результатов |
@@ -222,12 +224,12 @@
 
 **Эволюция проекта (для раздела "История"):**
 
-| Урок | Изображение | Назначение |
+| Версия | Изображение | Назначение |
 |------|-------------|------------|
-| PEL03 | IMG-002 | LangFlow MVP |
-| PEL04 | IMG-009 | LangChain Chain mode |
-| PEL05 | IMG-019 | n8n + LangChain |
-| PEL06 | IMG-032 | FastAPI + Web UI |
+| v1 | IMG-002 | LangFlow MVP |
+| v2 | IMG-009 | LangChain Chain mode |
+| v3 | IMG-019 | n8n + LangChain |
+| v4 | IMG-032 | FastAPI + Web UI |
 
 ---
 
@@ -255,17 +257,22 @@ JSON-примеры API-запросов и ответов размещены в
 **Каталог:** `docs/examples/`
 
 **Файлы:**
-- `PEL06_json_root.json` — GET / пример
-- `PEL06_json_health.json` — GET /health пример
-- `PEL06_json_review_prompt.json` — POST /review (промпт)
-- `PEL06_json_review_not_prompt.json` — POST /review (не промпт)
-- `PEL06_json_error_empty.json` — Ошибка (пустой текст)
+- `PR_json_root.json` — GET / пример
+- `PR_json_health.json` — GET /health пример
+- `PR_json_review_prompt.json` — POST /review (промпт)
+- `PR_json_review_not_prompt.json` — POST /review (не промпт)
+- `PR_json_error_empty.json` — Ошибка (пустой текст)
 
 **Описание:** [examples/README.md](../examples/README.md)
 
 ---
 
 ## История изменений
+
+**2026-08-30:**
+- ✅ Переименованы все медиаматериалы по схеме `{PROJECT}_{VERSION}_{CATEGORY}_{DESCRIPTION}` (38 файлов)
+- ✅ Префиксы уроков (PEL03–PEL06) заменены версиями продукта v1–v4
+- ✅ Обновлены все ссылки в документации
 
 **2026-07-07:**
 - ✅ Переименовано: `SCREENSHOT_INDEX.md` → `MEDIA_INDEX.md`

@@ -5,7 +5,7 @@
 ## 1. Цель развёртывания
 
 LangFlow нужен как VPS-инстанс для:
-- Воспроизведения Prompt Review Agent из PEl03
+- Воспроизведения Prompt Review Agent из v1
 - Последующего вызова Flow внешними системами, в том числе n8n
 - Предоставления визуального интерфейса для работы с AI Flow
 
@@ -274,7 +274,7 @@ services:
 
 ### Шаг 8: Создание/импорт Prompt Review Flow
 
-- Воспроизвести Prompt Review Flow из PEl03
+- Воспроизвести Prompt Review Flow из v1
 - Настроить модель: Ollama с gemma4:e4b
 - Протестировать Flow в Playground
 

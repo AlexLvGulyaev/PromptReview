@@ -17,11 +17,29 @@
 
 ---
 
+## CI/CD интеграция
+
+Пример проверки качества промпта в GitLab CI:
+
+```yaml
+# Анализ промпта при каждом коммите
+analyze_prompt:
+  script:
+    - |
+      curl -X POST http://prompt-review:8000/review \
+        -H "Content-Type: application/json" \
+        -d @prompt.json | jq '.scores.clarity'
+```
+
+Сценарий: промпты хранятся отдельными файлами в репозитории, пайплайн отправляет их в `/review` и проверяет оценки по критериям (`scores`). Поле `scores` описано в [API_CONTRACT.md](../API_CONTRACT.md).
+
+---
+
 ## Примеры
 
 ### JSON-001: GET /
 
-**Файл:** `PEL06_json_root.json`
+**Файл:** `PR_json_root.json`
 
 **Endpoint:** `GET /`
 
@@ -36,7 +54,7 @@
 
 ### JSON-002: GET /health
 
-**Файл:** `PEL06_json_health.json`
+**Файл:** `PR_json_health.json`
 
 **Endpoint:** `GET /health`
 
@@ -51,7 +69,7 @@
 
 ### JSON-003: POST /review (промпт)
 
-**Файл:** `PEL06_json_review_prompt.json`
+**Файл:** `PR_json_review_prompt.json`
 
 **Endpoint:** `POST /review`
 
@@ -70,7 +88,7 @@
 
 ### JSON-004: POST /review (не промпт)
 
-**Файл:** `PEL06_json_review_not_prompt.json`
+**Файл:** `PR_json_review_not_prompt.json`
 
 **Endpoint:** `POST /review`
 
@@ -84,7 +102,7 @@
 
 ### JSON-005: Ошибка (пустой текст)
 
-**Файл:** `PEL06_json_error_empty.json`
+**Файл:** `PR_json_error_empty.json`
 
 **Endpoint:** `POST /review`
 
@@ -113,7 +131,7 @@
 
 При добавлении новых примеров:
 
-1. Использовать схему именования: `PEL06_json_{description}.json`
+1. Использовать схему именования: `PR_json_{description}.json`
 2. Описать пример в данном README
 3. Добавить ссылку в API_CONTRACT.md
 

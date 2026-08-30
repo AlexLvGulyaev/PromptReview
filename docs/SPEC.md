@@ -1,6 +1,6 @@
-# SPEC.md — Prompt Review Service
+# 📋 SPEC.md — Prompt Review Service
 
-## Продуктовая спецификация
+## 📐 Продуктовая спецификация
 
 **Версия:** 1.0
 **Дата:** 2026-07-07
@@ -8,7 +8,7 @@
 
 ---
 
-## 1. Обзор продукта
+## 🎯 1. Обзор продукта
 
 ### 1.1 Назначение
 
@@ -32,7 +32,7 @@ Prompt Review Service — AI-сервис для анализа качества
 
 ---
 
-## 2. Архитектура
+## 🏗️ 2. Архитектура
 
 ### 2.1 Общая схема
 
@@ -108,7 +108,7 @@ Prompt Review Service — AI-сервис для анализа качества
 
 ---
 
-## 3. API Specification
+## 🔌 3. API Specification
 
 ### 3.1 Endpoint: GET /
 
@@ -292,7 +292,7 @@ Content-Type: application/json
 
 ---
 
-## 4. UI-сценарии
+## 🖥️ 4. UI-сценарии
 
 ### 4.1 Telegram Bot
 
@@ -374,7 +374,7 @@ Web Form → POST /review → FastAPI → Prompt Review Engine → JSON → ре
 
 ---
 
-## 5. Production Requirements
+## ⚙️ 5. Production Requirements
 
 ### 5.1 Безопасность
 
@@ -441,7 +441,7 @@ RATE_LIMIT_PER_MINUTE=60
 
 ---
 
-## 6. Критерии качества промпта
+## 📏 6. Критерии качества промпта
 
 ### 6.1 Оценочные критерии
 
@@ -471,7 +471,7 @@ RATE_LIMIT_PER_MINUTE=60
 
 ---
 
-## 7. Архитектурные решения
+## 🧭 7. Архитектурные решения
 
 ### 7.1 Backend Adapter Pattern
 
@@ -514,7 +514,7 @@ RATE_LIMIT_PER_MINUTE=60
 
 ---
 
-## 8. Ограничения и будущие улучшения
+## ⚠️ 8. Ограничения и будущие улучшения
 
 ### 8.1 Текущие ограничения
 
@@ -532,7 +532,7 @@ RATE_LIMIT_PER_MINUTE=60
 
 ---
 
-## 9. Глоссарий
+## 📚 9. Глоссарий
 
 | Термин | Определение |
 |--------|-------------|
@@ -544,7 +544,7 @@ RATE_LIMIT_PER_MINUTE=60
 
 ---
 
-## Связанные документы
+## 🔗 Связанные документы
 
 - [README.md](../README.md) — публичное описание проекта
 - [ARCHITECTURE.md](ARCHITECTURE.md) — архитектура системы

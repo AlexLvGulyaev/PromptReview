@@ -6,7 +6,7 @@
 
 ---
 
-## Назначение
+## 🎯 1. Назначение
 
 Этот документ описывает **логический контракт** Prompt Review Service API.
 
@@ -28,7 +28,7 @@
 
 ---
 
-## Endpoint: GET /
+## 🔌 Endpoint: GET /
 
 ### Описание
 
@@ -42,11 +42,11 @@
 }
 ```
 
-**Пример:** [docs/examples/PEL06_json_root.json](examples/PEL06_json_root.json)
+**Пример:** [docs/examples/PR_json_root.json](examples/PR_json_root.json)
 
 ---
 
-## Endpoint: GET /health
+## 🔌 Endpoint: GET /health
 
 ### Описание
 
@@ -70,11 +70,11 @@ Health check для мониторинга доступности сервиса
 }
 ```
 
-**Пример:** [docs/examples/PEL06_json_health.json](examples/PEL06_json_health.json)
+**Пример:** [docs/examples/PR_json_health.json](examples/PR_json_health.json)
 
 ---
 
-## Endpoint: POST /review
+## 🔌 Endpoint: POST /review
 
 ### Запрос: PromptReviewRequest
 
@@ -279,7 +279,7 @@ class PromptMetrics(BaseModel):
 
 ---
 
-## Примеры запросов и ответов
+## 📄 Примеры запросов и ответов
 
 ### Пример 1: Промпт (is_prompt = true)
 
@@ -426,7 +426,7 @@ class PromptMetrics(BaseModel):
 
 ---
 
-## Обработка ошибок
+## ❗ 2. Обработка ошибок
 
 ### ErrorResponse
 
@@ -474,15 +474,15 @@ class ErrorResponse(BaseModel):
 
 ---
 
-## Ветвление ответа
+## 🔀 3. Ветвление ответа
 
 ### Примеры ответов
 
-**Для `is_prompt = true`:** [docs/examples/PEL06_json_review_prompt.json](examples/PEL06_json_review_prompt.json)
+**Для `is_prompt = true`:** [docs/examples/PR_json_review_prompt.json](examples/PR_json_review_prompt.json)
 
-**Для `is_prompt = false`:** [docs/examples/PEL06_json_review_not_prompt.json](examples/PEL06_json_review_not_prompt.json)
+**Для `is_prompt = false`:** [docs/examples/PR_json_review_not_prompt.json](examples/PR_json_review_not_prompt.json)
 
-**Ошибка валидации:** [docs/examples/PEL06_json_error_empty.json](examples/PEL06_json_error_empty.json)
+**Ошибка валидации:** [docs/examples/PR_json_error_empty.json](examples/PR_json_error_empty.json)
 
 ### Логика
 
@@ -536,7 +536,7 @@ if is_prompt == false:
 
 ---
 
-## Соответствие overall и quality_level
+## ✅ 4. Соответствие overall и quality_level
 
 **Source of Truth для всех реализаций (LangFlow, LangChain, n8n).**
 
@@ -592,7 +592,7 @@ else:
 
 ---
 
-## Обратная совместимость
+## ↩️ 5. Обратная совместимость
 
 ### Принципы
 
@@ -615,7 +615,7 @@ else:
 
 ---
 
-## Источники истины
+## 📌 6. Источники истины
 
 | Компонент | SOT | Назначение |
 |-----------|-----|------------|
@@ -626,7 +626,7 @@ else:
 
 ---
 
-## Связанные документы
+## 🔗 7. Связанные документы
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) — архитектура системы
 - [SPEC.md](SPEC.md) — продуктовая спецификация

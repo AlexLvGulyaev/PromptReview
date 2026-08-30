@@ -31,9 +31,9 @@ flowchart LR
 
 **Интерфейс LangFlow:**
 
-![LangFlow интерфейс (Preseil)](../docs/screenshots/PEL03_ui_presail.png)
+![LangFlow интерфейс (Preseil)](../docs/screenshots/PR_v1_ui_langflow_presail.png)
 
-![LangFlow интерфейс (Student)](../docs/screenshots/PEL03_ui_student.png)
+![LangFlow интерфейс (Student)](../docs/screenshots/PR_v1_ui_langflow_student.png)
 
 **Компоненты:**
 

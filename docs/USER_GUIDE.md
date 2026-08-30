@@ -1,11 +1,11 @@
-# Руководство пользователя Prompt Review Service
+# 📖 Руководство пользователя Prompt Review Service
 
 **Последнее обновление:** 2026-07-07
 **Версия:** 1.0.0
 
 ---
 
-## О руководстве
+## 📖 1. О руководстве
 
 Это руководство для пользователей Prompt Review Service — AI-сервиса для анализа качества промптов.
 
@@ -26,7 +26,7 @@
 
 ---
 
-## Что такое Prompt Review Service
+## 🎓 2. Что такое Prompt Review Service
 
 Prompt Review Service анализирует промпты для LLM как инженерные артефакты.
 
@@ -42,7 +42,7 @@ Prompt Review Service анализирует промпты для LLM как и
 
 ---
 
-## Способы использования
+## 🧭 3. Способы использования
 
 | Интерфейс | Назначение | Скорость | Удобство |
 |-----------|------------|-----------|----------|
@@ -52,7 +52,7 @@ Prompt Review Service анализирует промпты для LLM как и
 
 ---
 
-## Web UI: Ручная проверка промптов
+## 🖥️ 4. Web UI: Ручная проверка промптов
 
 ### Доступ к Web UI
 
@@ -60,7 +60,7 @@ Prompt Review Service анализирует промпты для LLM как и
 2. Перейдите по адресу сервиса (например, `http://localhost:8000`)
 3. Вы увидите форму для ввода текста
 
-![Web UI форма](screenshots/PEL06_ui_web_form.png)
+![Web UI форма](screenshots/PR_v4_ui_web_form.png)
 
 ### Использование
 
@@ -84,9 +84,9 @@ Prompt Review Service анализирует промпты для LLM как и
 
 #### Пример: Текст является промптом
 
-![Web UI: анализ промпта](screenshots/PEL06_result_web_analysis1.png)
+![Web UI: анализ промпта](screenshots/PR_v4_result_web_analysis1.png)
 
-![Web UI: анализ промпта (продолжение)](screenshots/PEL06_result_web_analysis2.png)
+![Web UI: анализ промпта (продолжение)](screenshots/PR_v4_result_web_analysis2.png)
 
 **Результат содержит:**
 
@@ -99,7 +99,7 @@ Prompt Review Service анализирует промпты для LLM как и
 
 #### Пример: Текст не является промптом
 
-![Web UI: не промпт](screenshots/PEL06_result_web_not_prompt.png)
+![Web UI: не промпт](screenshots/PR_v4_result_web_not_prompt.png)
 
 **Результат содержит:**
 
@@ -141,14 +141,14 @@ Prompt Review Service анализирует промпты для LLM как и
 
 ---
 
-## Telegram Bot: Быстрая проверка из мессенджера
+## 💬 5. Telegram Bot: Быстрая проверка из мессенджера
 
 ### Начало работы с ботом
 
 1. Найдите бота в Telegram (имя бота зависит от развёртывания)
 2. Нажмите "Start" или отправьте команду `/start`
 
-![Telegram Bot интерфейс](screenshots/PEL06_ui_telegram_bot.png)
+![Telegram Bot интерфейс](screenshots/PR_v4_ui_telegram_bot.png)
 
 ### Команды бота
 
@@ -174,15 +174,15 @@ Prompt Review Service анализирует промпты для LLM как и
 
 #### Пример: Анализ промпта
 
-![Telegram: анализ промпта](screenshots/PEL06_result_telegram_analysis.png)
+![Telegram: анализ промпта](screenshots/PR_v4_result_telegram_analysis.png)
 
 #### Пример: Текст не является промптом
 
-![Telegram: не промпт](screenshots/PEL06_result_telegram_not_prompt.png)
+![Telegram: не промпт](screenshots/PR_v4_result_telegram_not_prompt.png)
 
 ---
 
-## REST API: Интеграция в системы
+## 🔌 6. REST API: Интеграция в системы
 
 ### Когда использовать API
 
@@ -268,7 +268,7 @@ curl -X POST http://localhost:8000/review \
 
 ---
 
-## Критерии качества промпта
+## 📏 7. Критерии качества промпта
 
 Сервис оценивает промпты по 8 критериям (1–10 баллов):
 
@@ -443,7 +443,7 @@ curl -X POST http://localhost:8000/review \
 
 ---
 
-## Уровни качества
+## 🚦 8. Уровни качества
 
 Каждый критерий оценивается от 1 до 10 баллов:
 
@@ -462,7 +462,7 @@ curl -X POST http://localhost:8000/review \
 
 ---
 
-## Типичные сценарии использования
+## 🎬 9. Типичные сценарии использования
 
 ### Сценарий 1: Разовая проверка
 
@@ -564,7 +564,7 @@ print(f"Processed {len(results)} prompts. Results saved to {OUTPUT_FILE}")
 
 ---
 
-## Часто задаваемые вопросы
+## ❓ 10. Часто задаваемые вопросы
 
 ### Общие вопросы
 
@@ -629,7 +629,7 @@ A: Нет, API обрабатывает один промпт за запрос.
 
 ---
 
-## Устранение неполадок
+## 🔧 11. Устранение неполадок
 
 ### Сервис не отвечает
 
@@ -718,7 +718,7 @@ docker logs prompt-review-bot
 
 ---
 
-## Связанные документы
+## 🔗 12. Связанные документы
 
 | Документ | Назначение |
 |----------|------------|
@@ -730,7 +730,7 @@ docker logs prompt-review-bot
 
 ---
 
-## Поддержка
+## 🛟 13. Поддержка
 
 При возникновении проблем:
 

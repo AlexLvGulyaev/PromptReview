@@ -89,15 +89,15 @@ flowchart TD
 
 **Интерфейсы LangChain:**
 
-![AgentExecutor главный экран](../docs/screenshots/PEL04_ui_agentexecutor_main.png)
+![AgentExecutor главный экран](../docs/screenshots/PR_v2_ui_agentexecutor_main.png)
 
-![Chain mode интерфейс](../docs/screenshots/PEL04_ui_chain_mode.png)
+![Chain mode интерфейс](../docs/screenshots/PR_v2_ui_chain_mode.png)
 
 **Результаты работы:**
 
-![Пример ответа (качественный)](../docs/screenshots/PEL04_result_quality.png)
+![Пример ответа (качественный)](../docs/screenshots/PR_v2_result_quality.png)
 
-![Пример ответа (детальный)](../docs/screenshots/PEL04_result_detailed.png)
+![Пример ответа (детальный)](../docs/screenshots/PR_v2_result_detailed.png)
 
 ## Используемые модели
 
@@ -161,4 +161,3 @@ ollama pull gemma4:e4b
 
 ## Ссылки
 
-- PDF-отчёт PEl04 с результатами тестирования доступен в materials кейса prompt-review

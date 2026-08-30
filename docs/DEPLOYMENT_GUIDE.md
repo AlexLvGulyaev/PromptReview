@@ -1,4 +1,4 @@
-# DEPLOYMENT_GUIDE.md — Prompt Review Service
+# 🚀 DEPLOYMENT_GUIDE.md — Prompt Review Service
 
 **Версия:** 2.0
 **Дата:** 2026-07-07
@@ -6,7 +6,7 @@
 
 ---
 
-## Purpose
+## 🎯 1. Purpose
 
 Данный документ описывает полное развёртывание Prompt Review Service с нуля.
 
@@ -29,7 +29,7 @@
 
 ---
 
-## Deployment Models
+## 🚀 2. Deployment Models
 
 ### Model 1: Local Development
 
@@ -197,7 +197,7 @@ OpenAI API / Ollama
 
 ---
 
-## Prerequisites
+## 📦 3. Prerequisites
 
 ### Обязательные
 
@@ -223,7 +223,7 @@ OpenAI API / Ollama
 
 ---
 
-## Environment
+## 🔐 4. Environment
 
 ### Структура переменных
 
@@ -392,7 +392,7 @@ LOG_LEVEL=INFO
 
 ---
 
-## Deployment
+## 🚀 5. Deployment
 
 ### Model 1: Local Development
 
@@ -1169,7 +1169,7 @@ curl -X POST http://localhost:8000/review \
 
 ---
 
-## Verification Checklist
+## ✅ 6. Verification Checklist
 
 ### После развёртывания API
 
@@ -1279,7 +1279,7 @@ curl http://localhost:8000/health
 
 ---
 
-## Troubleshooting
+## 🔧 7. Troubleshooting
 
 ### Проблема: Backend unavailable
 
@@ -1556,7 +1556,7 @@ curl http://localhost:11434/api/tags
 
 ---
 
-## Recovery
+## ♻️ 8. Recovery
 
 ### Остановка
 
@@ -1624,7 +1624,7 @@ docker logs prompt-review-api -f
 
 ---
 
-## Files Reference
+## 🗂️ 9. Files Reference
 
 ### Основные файлы проекта
 
@@ -1685,7 +1685,7 @@ docker logs prompt-review-api -f
 
 ---
 
-## Documentation
+## 📚 10. Documentation
 
 | Документ | Назначение |
 |----------|------------|
@@ -1701,7 +1701,7 @@ docker logs prompt-review-api -f
 
 ---
 
-## Заключение
+## 🏁 11. Заключение
 
 После завершения всех шагов данного руководства у вас должна работать система Prompt Review Service.
 
@@ -1775,7 +1775,7 @@ docker logs prompt-review-api -f
 
 ---
 
-## Troubleshooting Checklist
+## 🔧 12. Troubleshooting Checklist
 
 При возникновении проблем используйте следующий чек-лист:
 
@@ -1843,11 +1843,11 @@ docker network ls | grep n8n_default
 docker volume ls
 ```
 
-Если проблема не решена, обратитесь к разделу [Troubleshooting](#troubleshooting) для конкретных проблем.
+Если проблема не решена, обратитесь к разделу [Troubleshooting](#-7-troubleshooting) для конкретных проблем.
 
 ---
 
-## Change Log
+## 📜 13. Change Log
 
 **2026-07-07 (v2.2):**
 - ✅ Добавлена секция "Заключение" с финальным чек-листом
@@ -1876,7 +1876,7 @@ docker volume ls
 
 ---
 
-## Качество документа
+## 📏 14. Качество документа
 
 Данный документ соответствует стандартам инженерного руководства по развёртыванию:
 

@@ -1,4 +1,4 @@
-# ARCHITECTURE.md — Prompt Review Service
+# 🏗️ ARCHITECTURE.md — Prompt Review Service
 
 **Версия:** 1.0
 **Дата:** 2026-07-07
@@ -6,24 +6,24 @@
 
 ---
 
-## Обзор архитектуры
+## 🎯 1. Обзор архитектуры
 
-Prompt Review Service — AI-сервис для анализа качества пользовательских промптов. Проходит путь от учебного прототипа (PEl03) до production-ready API (PEl06).
+Prompt Review Service — AI-сервис для анализа качества пользовательских промптов. Развивался от MVP-прототипа (v1) до production-ready API-сервиса (v4).
 
 ### Эволюция проекта
 
 | Этап | Технология | Ключевое достижение | Статус |
 |------|------------|----------------------|--------|
-| **PEl03** | LangFlow | MVP Prompt Review Agent | ✅ Учебный прототип |
-| **PEl04** | LangChain | Chain + AgentExecutor + Tool | ✅ Учебный прототип |
-| **PEl05** | n8n | Две интеграционные архитектуры | ✅ Учебный прототип |
-| **PEl06** | FastAPI | Production-ready API-сервис | ✅ Каноническая реализация |
+| **v1** | LangFlow | MVP Prompt Review Agent | ✅ Прототип |
+| **v2** | LangChain | Chain + AgentExecutor + Tool | ✅ Прототип |
+| **v3** | n8n | Две интеграционные архитектуры | ✅ Прототип |
+| **v4** | FastAPI | Production-ready API-сервис | ✅ Каноническая реализация |
 
-**Каноническая реализация:** PEl06 (FastAPI API-слой).
+**Каноническая реализация:** v4 (FastAPI API-слой).
 
 ---
 
-## Архитектура PEl06
+## 🏗️ 2. Архитектура v4
 
 ### Общая схема
 
@@ -59,7 +59,7 @@ graph TD
 
 ---
 
-## User Interfaces
+## 🖥️ 3. User Interfaces
 
 Prompt Review Service предоставляет три пользовательских интерфейса:
 
@@ -77,11 +77,11 @@ Prompt Review Service предоставляет три пользователь
 
 **Интерфейс:**
 
-![Web UI: форма ввода](screenshots/PEL06_ui_web_form.png)
+![Web UI: форма ввода](screenshots/PR_v4_ui_web_form.png)
 
-![Web UI: анализ промпта](screenshots/PEL06_result_web_analysis1.png)
+![Web UI: анализ промпта](screenshots/PR_v4_result_web_analysis1.png)
 
-![Web UI: анализ промпта (продолжение)](screenshots/PEL06_result_web_analysis2.png)
+![Web UI: анализ промпта (продолжение)](screenshots/PR_v4_result_web_analysis2.png)
 
 **Архитектура:**
 
@@ -129,9 +129,9 @@ PROMPT_REVIEW_API_URL=http://localhost:8000
 
 **Интерфейс:**
 
-![Telegram Bot: интерфейс](screenshots/PEL06_ui_telegram_bot.png)
+![Telegram Bot: интерфейс](screenshots/PR_v4_ui_telegram_bot.png)
 
-![Telegram Bot: анализ промпта](screenshots/PEL06_result_telegram_analysis.png)
+![Telegram Bot: анализ промпта](screenshots/PR_v4_result_telegram_analysis.png)
 PROMPT_REVIEW_API_URL=http://localhost:8000
 API_TIMEOUT=60
 ```
@@ -159,7 +159,7 @@ API_TIMEOUT=60
 
 ---
 
-## JSON-контракт
+## 📄 4. JSON-контракт
 
 ### Назначение
 
@@ -245,7 +245,7 @@ API_TIMEOUT=60
 
 ---
 
-## Backend Adapter Pattern
+## 🧩 5. Backend Adapter Pattern
 
 ### Назначение
 
@@ -312,7 +312,7 @@ class Settings(BaseSettings):
 
 ---
 
-## LangFlow Adapter
+## 🧩 6. LangFlow Adapter
 
 ### Назначение
 
@@ -326,18 +326,18 @@ class Settings(BaseSettings):
 
 - Вызывает LangFlow через HTTP POST `/api/v1/run/{flow_id}`
 - Ожидает Structured Output с JSON-контрактом
-- Рассчитывает метрики локально (как в PEl05)
+- Рассчитывает метрики локально (как в v3)
 - Преобразует JSON-ответ LangFlow в `PromptReviewResponse`
 
 ### Когда использовать
 
 - Когда LangFlow развёрнут как отдельный сервис
 - Когда нужен визуальный редактор для изменения Flow
-- Когда нужно переиспользовать Flow из PEl03
+- Когда нужно переиспользовать Flow из v1
 
 ---
 
-## LangChain Adapter
+## 🧩 7. LangChain Adapter
 
 ### Назначение
 
@@ -401,7 +401,7 @@ graph TD
 | `REVIEW_PROMPT` | Анализ качества промпта |
 | `REWRITER_PROMPT` | Улучшение редакции промпта |
 
-**Важно:** Промпты перенесены из PEl05 без изменений.
+**Важно:** Промпты перенесены из v3 без изменений.
 
 ### Когда использовать
 
@@ -411,7 +411,7 @@ graph TD
 
 ---
 
-## Взаимодействие FastAPI и BackendAdapter
+## 🔀 8. Взаимодействие FastAPI и BackendAdapter
 
 ### Критически важная информация
 
@@ -462,7 +462,7 @@ sequenceDiagram
 
 ---
 
-## Source of Truth
+## 📌 9. Source of Truth
 
 ### Код
 
@@ -487,7 +487,7 @@ sequenceDiagram
 
 ---
 
-## Соответствие overall и quality_level
+## ✅ 10. Соответствие overall и quality_level
 
 ### Назначение
 
@@ -554,7 +554,7 @@ if quality_level_raw != quality_level_expected:
 
 ---
 
-## Конфигурация backend
+## ⚙️ 11. Конфигурация backend
 
 ### LangFlow (по умолчанию)
 
@@ -587,30 +587,30 @@ OLLAMA_MODEL=gemma2:9b
 
 ---
 
-## История архитектуры
+## 📜 12. История архитектуры
 
-### PEl03: LangFlow MVP
+### v1: LangFlow MVP
 
 - Визуальный конструктор LangFlow
 - Единый промпт
 - Нет JSON-контракта
 - Нет API
 
-### PEl04: LangChain
+### v2: LangChain
 
 - Python-код: Chain и AgentExecutor
 - Инструмент `prompt_metrics`
 - Нет JSON-контракта
 - Нет API
 
-### PEl05: n8n интеграции
+### v3: n8n интеграции
 
 - Модульный конвейер (впервые)
 - JSON-контракт (впервые)
 - Два сценария: n8n+LangFlow, n8n+LangChain
 - Ветвление по `is_prompt`
 
-### PEl06: FastAPI API-слой
+### v4: FastAPI API-слой
 
 - **PromptReviewPipeline** — каноническая реализация LangChain backend
 - **BackendAdapter** — паттерн для переключения между backend
@@ -619,7 +619,7 @@ OLLAMA_MODEL=gemma2:9b
 
 ---
 
-## Архитектурные решения
+## 🧭 13. Архитектурные решения
 
 ### 1. Backend Adapter Pattern
 
@@ -666,7 +666,7 @@ OLLAMA_MODEL=gemma2:9b
 
 ---
 
-## Ограничения
+## ⚠️ 14. Ограничения
 
 ### Текущие ограничения
 
@@ -684,7 +684,7 @@ OLLAMA_MODEL=gemma2:9b
 
 ---
 
-## Связанные документы
+## 🔗 15. Связанные документы
 
 ### Основная документация
 
@@ -700,7 +700,7 @@ OLLAMA_MODEL=gemma2:9b
 | **FastAPI API** | [api/README.md](../api/README.md) | Архитектура API, endpoints, запуск |
 | **Web UI** | [api/web/README.md](../api/web/README.md) | Веб-интерфейс, возможности |
 | **Telegram Bot** | [api/telegram/README.md](../api/telegram/README.md) | Telegram Bot, команды |
-| **LangFlow MVP** | [langflow/README.md](../langflow/README.md) | Прототип PEl03, Flow, тестирование |
-| **LangChain** | [langchain/README.md](../langchain/README.md) | Реализация PEl04, Chain/AgentExecutor |
-| **n8n Integration** | [n8n/README.md](../n8n/README.md) | Сценарии PEl05, интеграции |
+| **LangFlow MVP** | [langflow/README.md](../langflow/README.md) | Прототип v1, Flow, тестирование |
+| **LangChain** | [langchain/README.md](../langchain/README.md) | Реализация v2, Chain/AgentExecutor |
+| **n8n Integration** | [n8n/README.md](../n8n/README.md) | Сценарии v3, интеграции |
 | **Инфраструктура** | [infra/README.md](../infra/README.md) | Docker, конфигурации |

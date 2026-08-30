@@ -1,4 +1,4 @@
-# Prompt Review Service
+# 🔍 Prompt Review Service
 
 **AI-сервис для анализа качества промптов**
 
@@ -10,7 +10,7 @@ Prompt Review Service анализирует ваш промпт как инже
 
 ---
 
-## Что он делает
+## ⚙️ Что он делает
 
 ### Классификация
 
@@ -41,7 +41,7 @@ Prompt Review Service анализирует ваш промпт как инже
 
 ---
 
-## Кому это нужно
+## 🎯 Кому это нужно
 
 ### Инженеры промптов
 
@@ -57,7 +57,7 @@ Prompt Review Service анализирует ваш промпт как инже
 
 ---
 
-## Примеры использования
+## 🧭 Примеры использования
 
 ### Разовая проверка
 
@@ -65,17 +65,7 @@ Prompt Review Service анализирует ваш промпт как инже
 
 ### CI/CD интеграция
 
-```bash
-# Пример интеграции в GitLab CI
-analyze_prompt:
-  script:
-    - |
-      curl -X POST http://prompt-review:8000/review \
-        -H "Content-Type: application/json" \
-        -d @prompt.json | jq '.scores.clarity'
-```
-
-Автоматически проверяете качество промптов при каждом коммите.
+Автоматически проверяете качество промптов при каждом коммите: REST API возвращает оценки по всем критериям, пайплайн проверяет порог качества. Готовый пример для GitLab CI — в [docs/examples/README.md](docs/examples/README.md).
 
 ### Пакетная обработка
 
@@ -83,13 +73,13 @@ analyze_prompt:
 
 ---
 
-## Как выглядит
+## 🖼️ Как выглядит
 
 ### Web UI
 
 Веб-интерфейс для анализа промптов:
 
-![Web UI: анализ промпта](docs/screenshots/PEL06_result_web_analysis1.png)
+![Web UI: анализ промпта](docs/screenshots/PR_v4_result_web_analysis1.png)
 
 Форма ввода текста, кнопка анализа, структурированный результат с оценками и рекомендациями.
 
@@ -97,9 +87,9 @@ analyze_prompt:
 
 Чат-бот для быстрой проверки:
 
-![Telegram Bot: интерфейс](docs/screenshots/PEL06_ui_telegram_bot.png)
+![Telegram Bot: интерфейс](docs/screenshots/PR_v4_ui_telegram_bot.png)
 
-![Telegram Bot: анализ промпта](docs/screenshots/PEL06_result_telegram_analysis.png)
+![Telegram Bot: анализ промпта](docs/screenshots/PR_v4_result_telegram_analysis.png)
 
 Отправляете промпт — получаете анализ с оценками и улучшенной версией.
 
@@ -117,7 +107,7 @@ curl -X POST http://localhost:8000/review \
 
 ---
 
-## Как развивался проект
+## 📜 Как развивался проект
 
 Prompt Review Service прошёл путь от концепции до production-ready сервиса:
 
@@ -134,7 +124,7 @@ Prompt Review Service прошёл путь от концепции до product
 
 ### LangFlow MVP
 
-![LangFlow интерфейс](docs/screenshots/PEL03_ui_student.png)
+![LangFlow интерфейс](docs/screenshots/PR_v1_ui_langflow_student.png)
 
 Быстрый прототип для проверки концепции: AI анализирует промпты как инженерные артефакты.
 
@@ -142,7 +132,7 @@ Prompt Review Service прошёл путь от концепции до product
 
 ### LangChain
 
-![LangChain Chain mode](docs/screenshots/PEL04_ui_chain_mode.png)
+![LangChain Chain mode](docs/screenshots/PR_v2_ui_chain_mode.png)
 
 Полный контроль над пайплайном: поддержка локальных моделей, кастомные цепочки обработки.
 
@@ -150,7 +140,7 @@ Prompt Review Service прошёл путь от концепции до product
 
 ### n8n Integration
 
-![n8n + LangChain](docs/screenshots/PEL05_flow_langchain_scenario2.png)
+![n8n + LangChain](docs/screenshots/PR_v3_flow_langchain_scenario2.png)
 
 Интеграция в рабочие процессы: пакетная обработка, автоматизация через n8n.
 
@@ -158,9 +148,9 @@ Prompt Review Service прошёл путь от концепции до product
 
 ### FastAPI Service
 
-![Web UI: анализ промпта](docs/screenshots/PEL06_result_web_analysis1.png)
+![Web UI: анализ промпта](docs/screenshots/PR_v4_result_web_analysis1.png)
 
-![Web UI: анализ промпта (продолжение)](docs/screenshots/PEL06_result_web_analysis2.png)
+![Web UI: анализ промпта (продолжение)](docs/screenshots/PR_v4_result_web_analysis2.png)
 
 Production-ready сервис: REST API, Web UI, Telegram Bot, готовность к развёртыванию.
 
@@ -168,7 +158,7 @@ Production-ready сервис: REST API, Web UI, Telegram Bot, готовнос�
 
 ---
 
-## Что внутри
+## 🧩 Что внутри
 
 ### Три интерфейса
 
@@ -223,20 +213,37 @@ LangFlow  LangChain  Custom
 
 ---
 
-## Документация
+## 📚 Документация
 
-| Документ | Для кого | Что содержит |
-|----------|----------|--------------|
-| [USER_GUIDE.md](docs/USER_GUIDE.md) | Пользователи | Руководство по использованию сервиса |
-| [DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) | Инженеры | Инструкция по запуску и развёртыванию |
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Инженеры | Архитектура, компоненты, интеграции |
-| [API_CONTRACT.md](docs/API_CONTRACT.md) | Интеграторы | Полный контракт API с примерами |
-| [SPEC.md](docs/SPEC.md) | Продукт | Продуктовая спецификация |
-| [PROJECT_STATE.md](docs/PROJECT_STATE.md) | Менеджеры | Состояние проекта и следующие шаги |
+### 📈 Для заказчиков и менеджеров
+
+| Документ | Что содержит |
+|----------|--------------|
+| [BUSINESS_VALUE.md](docs/BUSINESS_VALUE.md) | Бизнес-проблема, решение, эффект, выгода |
+| [SYSTEM_DEMO.md](docs/SYSTEM_DEMO.md) | Скриншоты и сквозные сценарии работы сервиса |
+
+### 📖 Для пользователей
+
+| Документ | Что содержит |
+|----------|--------------|
+| [USER_GUIDE.md](docs/USER_GUIDE.md) | Руководство по использованию сервиса (Web UI, Telegram Bot) |
+
+### 🏗️ Для инженеров и интеграторов
+
+| Документ | Что содержит |
+|----------|--------------|
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Архитектура, компоненты, интеграции |
+| [API_CONTRACT.md](docs/API_CONTRACT.md) | Полный контракт API с примерами |
+| [DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) | Инструкция по запуску и развёртыванию |
+| [SPEC.md](docs/SPEC.md) | Продуктовая спецификация |
+| [IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) | План реализации (архивный) |
+| [PROJECT_STATE.md](docs/PROJECT_STATE.md) | Состояние проекта, roadmap и остаточный долг |
+
+**Медиаматериалы:** каталог изображений с матрицей использования — [docs/screenshots/MEDIA_INDEX.md](docs/screenshots/MEDIA_INDEX.md); примеры API — [docs/examples/README.md](docs/examples/README.md).
 
 ---
 
-## Быстрый старт
+## 🚀 Быстрый старт
 
 Для локального запуска и развёртывания см. [DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md).
 
@@ -251,7 +258,30 @@ LangFlow  LangChain  Custom
 
 ---
 
-## Технологии
+## 📁 Структура проекта
+
+```
+prompt-review/
+├── api/                  # Каноническая реализация (v4)
+│   ├── app/              # FastAPI-сервис
+│   │   ├── adapters/     # Backend Adapter (LangFlow / LangChain)
+│   │   ├── pipeline/     # PromptReviewPipeline: анализ, метрики, промпты
+│   │   └── schemas.py    # Pydantic-модели JSON-контракта
+│   ├── telegram/         # Telegram Bot (aiogram 3.x)
+│   ├── web/              # Web UI (HTML5, CSS3, Vanilla JS)
+│   └── requirements.txt
+├── docs/                 # Документация
+│   ├── examples/         # Примеры API-запросов и CI/CD-интеграции
+│   └── screenshots/      # Медиаматериалы + MEDIA_INDEX.md
+├── infra/                # Docker Compose, Dockerfile, Traefik
+├── langflow/             # v1: LangFlow MVP (прототип)
+├── langchain/            # v2: LangChain реализация (прототип)
+└── n8n/                  # v3: n8n интеграции (сценарии)
+```
+
+---
+
+## 🛠️ Технологии
 
 | Слой | Технология |
 |------|------------|
@@ -263,12 +293,12 @@ LangFlow  LangChain  Custom
 
 ---
 
-## Лицензия
+## 📄 Лицензия
 
 MIT License
 
 ---
 
-## О проекте
+## ℹ️ О проекте
 
 Проект разработан в рамках инженерной методологии AI Automation Portfolio Lab.

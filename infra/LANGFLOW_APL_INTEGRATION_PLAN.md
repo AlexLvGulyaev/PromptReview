@@ -746,7 +746,7 @@ curl -k https://langflow.alex-n8n.site/health_check
 - В LangFlow UI: New Flow
 - Добавить компоненты: Chat Input → Ollama → Chat Output
 - Настроить Ollama: Base URL `http://host.docker.internal:11434`, Model `gemma4:e4b`
-- Настроить системный промпт (из PEl03)
+- Настроить системный промпт (из v1)
 - Сохранить Flow
 
 **Проверка:**
