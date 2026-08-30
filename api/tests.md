@@ -886,3 +886,28 @@ class Config:
 - Проверка на ретрирующихся ошибках в проде не выполнялась (нет инъекции сбоя); семантика retry гарантирована OpenAI SDK.
 
 **Итог:** P3 (токены, retry, структурные логи) реализован и подтверждён на локальном и production-инстансах.
+
+---
+
+## 14. Дополнительное тестирование: Вынос Pipeline Service (P5)
+
+**Дата:** 2026-08-30
+**Скоп:** вынос `PromptReviewPipeline` в отдельный HTTP-сервис (`api/pipeline_service/`) + режим `BACKEND_TYPE=langchain_service`.
+
+| # | Тест | Результат |
+|---|------|-----------|
+| 1 | Фабрика адаптеров: все три значения `BACKEND_TYPE` | `langflow` → `LangFlowAdapter`, `langchain` → `LangChainAdapter`, `langchain_service` → `PipelineServiceAdapter` — **PASS** |
+| 2 | Pipeline Service локально (`uvicorn pipeline_service.main:app`, порт 18935) | `/health` → `{"status":"ok","backend":"langchain","model":"openai"}` — **PASS** |
+| 3 | API в режиме `langchain_service` → E2E `/review` (реальный LLM) | полный анализ через HTTP-сервис: `quality: good, overall: 7.0`, `token_usage: {895/371/1266}`, `revised_prompt` присутствует, контракт идентичен in-process — **PASS** |
+| 4 | Ветка `is_prompt=false` через сервис | `not_applicable`, `token_usage: {219/46/265}` — идентично in-process — **PASS** |
+| 5 | Отказоустойчивость: сервис остановлен → API `/review` | `503 backend_unavailable`, «Pipeline Service unavailable» — **PASS** |
+| 6 | Docker: контейнер `prompt-review-pipeline:latest` | `/health` 200, `/process` возвращает корректный ответ — **PASS** |
+| 7 | Регрессия in-process (`BACKEND_TYPE=langchain`) | общий код `pipeline/llm.py` без изменения поведения — **PASS** (см. раздел 13, тест 3) |
+
+**Примечания:**
+- Код пайплайна не дублируется: сервис импортирует `api/app/pipeline/` (metrics/classifier/reviewer/rewriter/composer/prompts/llm) напрямую.
+- Конфигурация LLM вынесена в `api/app/pipeline/llm.py` (`create_llm`) — используется и `LangChainAdapter`, и `Pipeline Service`.
+- Compose-сервис опциональный (`profiles: pipeline`); прод-развёртывание остаётся на in-process backend.
+- HTTP-адаптер добавляет запас +10с к `REQUEST_TIMEOUT_SECONDS`, чтобы не срезать LLM-бюджет на обвязке.
+
+**Итог:** P5 реализован: пайплайн вынесен в опциональный HTTP-сервис без изменения JSON-контракта и поведения по умолчанию.

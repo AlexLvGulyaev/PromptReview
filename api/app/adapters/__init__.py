@@ -7,6 +7,7 @@ Backend-адаптеры для Prompt Review Service.
 from .base import BackendAdapter
 from .langflow import LangFlowAdapter
 from .langchain import LangChainAdapter
+from .pipeline_service import PipelineServiceAdapter
 
 
 def get_backend_adapter() -> BackendAdapter:
@@ -15,7 +16,8 @@ def get_backend_adapter() -> BackendAdapter:
 
     Возвращает нужный адаптер в зависимости от BACKEND_TYPE:
     - langflow: LangFlowAdapter
-    - langchain: LangChainAdapter
+    - langchain: LangChainAdapter (in-process pipeline)
+    - langchain_service: PipelineServiceAdapter (вынесенный HTTP-сервис)
     """
     from app.config import settings
 
@@ -31,6 +33,11 @@ def get_backend_adapter() -> BackendAdapter:
             model=settings.LANGCHAIN_MODEL,
             timeout=settings.REQUEST_TIMEOUT_SECONDS,
         )
+    elif settings.BACKEND_TYPE == "langchain_service":
+        return PipelineServiceAdapter(
+            url=settings.PIPELINE_SERVICE_URL,
+            timeout=settings.REQUEST_TIMEOUT_SECONDS + 10,
+        )
     else:
         raise ValueError(f"Unknown BACKEND_TYPE: {settings.BACKEND_TYPE}")
 
@@ -39,5 +46,6 @@ __all__ = [
     "BackendAdapter",
     "LangFlowAdapter",
     "LangChainAdapter",
+    "PipelineServiceAdapter",
     "get_backend_adapter",
 ]

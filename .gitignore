@@ -43,6 +43,8 @@ attachments/
 task-history/
 task_history/
 PROJECT_GOAL.md
+DEPLOYMENT_VALIDATION_REPORT.md
+docs/DEPLOYMENT_VALIDATION_REPORT.md
 
 # Local reports / generated drafts
 *.tmp

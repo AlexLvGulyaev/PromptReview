@@ -279,6 +279,8 @@ def get_backend_adapter() -> BackendAdapter:
         return LangFlowAdapter(...)
     elif settings.BACKEND_TYPE == "langchain":
         return LangChainAdapter(...)
+    elif settings.BACKEND_TYPE == "langchain_service":
+        return PipelineServiceAdapter(...)
     else:
         raise ValueError(f"Unknown BACKEND_TYPE: {settings.BACKEND_TYPE}")
 ```
@@ -290,13 +292,16 @@ def get_backend_adapter() -> BackendAdapter:
 ```python
 class Settings(BaseSettings):
     # Backend configuration
-    BACKEND_TYPE: str = "langflow"  # langflow или langchain
-    
+    BACKEND_TYPE: str = "langflow"  # langflow | langchain | langchain_service
+
     # LangFlow configuration
     LANGFLOW_URL: str = "http://localhost:7860"
     LANGFLOW_FLOW_ID: str = ""
     LANGFLOW_API_KEY: str = ""
-    
+
+    # Pipeline Service configuration (BACKEND_TYPE=langchain_service)
+    PIPELINE_SERVICE_URL: str = "http://localhost:8001"
+
     # LangChain configuration
     LANGCHAIN_MODEL: str = "openai"  # openai или ollama
     OPENAI_API_KEY: str = ""
@@ -408,6 +413,41 @@ graph TD
 - Когда нужен полный контроль над pipeline
 - Когда нужно локальное выполнение без внешнего сервиса
 - Когда нужно использовать локальные модели через Ollama
+
+---
+
+## 🧩 7.1. Pipeline Service (вынесенный LLM-конвейер, опционально)
+
+### Назначение
+
+`PromptReviewPipeline` доступен как отдельный HTTP-сервис (`BACKEND_TYPE=langchain_service`): LLM-вызовы выполняются в собственном контейнере, а не в процессе API.
+
+### Реализация
+
+**Source of Truth:** `api/pipeline_service/main.py`, `api/app/adapters/pipeline_service.py`.
+
+- `PipelineServiceAdapter` — HTTP-клиент API-слоя (POST `/process`, GET `/health`)
+- `api/pipeline_service/` — тонкая FastAPI-обёртка над общим кодом `pipeline/`
+- Контракт, токены, retry — идентичны in-process режиму (общий код, без дублирования)
+
+### Компоненты
+
+| Компонент | Файл | Назначение |
+|-----------|------|------------|
+| Pipeline Service | `api/pipeline_service/main.py` | HTTP-обёртка над `PromptReviewPipeline` (порт 8001) |
+| HTTP-адаптер | `api/app/adapters/pipeline_service.py` | Вызывает сервис, ошибки HTTP → `RuntimeError` (503) |
+| Фабрика LLM | `api/app/pipeline/llm.py` | `create_llm()` — общая для in-process и сервиса |
+| Compose | `infra/docker-compose.pipeline.yml` | Опциональный контейнер (`profiles: pipeline`) |
+
+### Когда использовать
+
+- Когда нужно изолировать LLM-нагрузку и отказы от процесса API
+- Когда пайплайн нужно масштабировать независимо от API-шлюза
+
+### Когда НЕ использовать
+
+- По умолчанию — in-process (`BACKEND_TYPE=langchain`) проще: один контейнер, меньше компонентов
+- Компонент опциональный и по умолчанию не разворачивается
 
 ---
 

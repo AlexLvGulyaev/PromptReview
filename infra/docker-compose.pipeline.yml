@@ -1,0 +1,51 @@
+# Pipeline Service Docker Compose Configuration (OPTIONAL)
+# Version: 1.0
+#
+# Вынесенный PromptReviewPipeline как отдельный HTTP-сервис.
+# Компонент опциональный: по умолчанию НЕ запускается (profiles: pipeline),
+# прод-инстанс работает на in-process backend (BACKEND_TYPE=langchain).
+#
+# Deploy (только при необходимости выноса LLM-вызовов из API):
+#   docker compose -p infra -f docker-compose.pipeline.yml --profile pipeline up -d
+#
+# Check:
+#   docker compose -p infra -f docker-compose.pipeline.yml --profile pipeline ps
+#   docker compose -p infra -f docker-compose.pipeline.yml --profile pipeline logs -f
+#
+# Stop:
+#   docker compose -p infra -f docker-compose.pipeline.yml --profile pipeline down
+#
+# Включение в API: BACKEND_TYPE=langchain_service и
+# PIPELINE_SERVICE_URL=http://pipeline-service:8001 в .env, затем
+# пересборка/перезапуск docker-compose.api.yml.
+
+name: prompt-review
+services:
+  # ============================================================================
+  # Prompt Review Pipeline Service (вынесенный LLM-конвейер)
+  # ============================================================================
+  pipeline-service:
+    profiles:
+      - pipeline
+    build:
+      context: ../api
+      dockerfile: ../infra/Dockerfile.pipeline
+    container_name: prompt-review-pipeline
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8001:8001"
+    networks:
+      - n8n_default
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8001/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  n8n_default:
+    external: true
+    name: n8n_default

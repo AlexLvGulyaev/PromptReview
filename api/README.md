@@ -81,11 +81,12 @@ uvicorn app.main:app --reload
 
 | Переменная | Описание | Обязательно |
 |------------|----------|-------------|
-| `BACKEND_TYPE` | Тип backend: `langflow` или `langchain` | Да |
+| `BACKEND_TYPE` | Тип backend: `langflow`, `langchain` или `langchain_service` | Да |
 | `LANGFLOW_URL` | URL LangFlow сервера | Для langflow |
 | `LANGFLOW_FLOW_ID` | ID Flow в LangFlow | Для langflow |
 | `LANGFLOW_API_KEY` | API ключ LangFlow | Для langflow |
 | `LANGCHAIN_MODEL` | Модель для LangChain | Для langchain |
+| `PIPELINE_SERVICE_URL` | URL вынесенного Pipeline Service (см. `pipeline_service/README.md`) | Для langchain_service |
 | `API_KEY` | API ключ для аутентификации | Нет |
 | `CORS_ORIGINS` | Разрешённые origins (через запятую) | Нет |
 | `LOG_LEVEL` | Уровень логирования | Нет (default: INFO) |
@@ -191,7 +192,10 @@ FastAPI → LangChainAdapter → PromptReviewPipeline → LLM → JSON Response
 
 **Архитектурное примечание:**
 
-`PromptReviewPipeline` архитектурно выделен как внутренний модуль. В будущем возможен вынос в отдельный LangChain Service API с сохранением интерфейса адаптера.
+`PromptReviewPipeline` архитектурно выделен как внутренний модуль и доступен в двух режимах:
+
+- **in-process** (`BACKEND_TYPE=langchain`) — LLM-вызовы в процессе API (по умолчанию);
+- **вынесенный сервис** (`BACKEND_TYPE=langchain_service`) — LLM-вызовы в отдельном контейнере `pipeline_service/` (опционально, см. `pipeline_service/README.md`).
 
 ## Переменные окружения для LangChain
 

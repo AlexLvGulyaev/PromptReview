@@ -1,6 +1,6 @@
 # 🚀 DEPLOYMENT_GUIDE.md — Prompt Review Service
 
-**Версия:** 2.3
+**Версия:** 2.5
 **Дата:** 2026-08-30
 **Статус:** Инженерное руководство
 
@@ -19,6 +19,7 @@
 | Telegram Bot | Чат-бот для проверки из мессенджера | ⚪ Опционально |
 | LangChain Backend | AI-движок на OpenAI/Ollama | ✅ Да (по умолчанию) |
 | LangFlow Backend | AI-движок на LangFlow | ⚪ Опционально (Flow включён в репозиторий) |
+| Pipeline Service | Вынесенный LLM-конвейер (HTTP) | ⚪ Опционально (по умолчанию не запускается) |
 
 **Что пользователь получит после завершения:**
 
@@ -235,6 +236,7 @@ OpenAI API / Ollama
 | OpenAI | `OPENAI_API_KEY` | ✅ Для LangChain + OpenAI |
 | Ollama | `OLLAMA_BASE_URL`, `OLLAMA_MODEL` | ⚪ Для LangChain + Ollama |
 | LangFlow | `LANGFLOW_URL`, `LANGFLOW_FLOW_ID`, `LANGFLOW_API_KEY` | ⚪ Для LangFlow backend |
+| Pipeline Service | `PIPELINE_SERVICE_URL` | ⚪ Для BACKEND_TYPE=langchain_service |
 | Telegram | `TELEGRAM_BOT_TOKEN`, `PROMPT_REVIEW_API_URL` | ⚪ Для Telegram Bot |
 | Retry | `RETRY_MAX_ATTEMPTS` | ⚪ Опционально (повторные попытки при временных ошибках LLM) |
 | API | `CORS_ORIGINS`, `LOG_LEVEL` | ⚪ Опционально |
@@ -251,7 +253,8 @@ OpenAI API / Ollama
 
 | Значение | Backend | Требования |
 |----------|---------|------------|
-| `langchain` | LangChain (OpenAI/Ollama) | `OPENAI_API_KEY` или `OLLAMA_BASE_URL` |
+| `langchain` | LangChain (OpenAI/Ollama), LLM-вызовы в процессе API | `OPENAI_API_KEY` или `OLLAMA_BASE_URL` |
+| `langchain_service` | Вынесенный Pipeline Service (HTTP), LLM-вызовы в отдельном контейнере | Работающий Pipeline Service + `PIPELINE_SERVICE_URL` |
 | `langflow` | LangFlow (внешний сервер) | `LANGFLOW_URL`, `LANGFLOW_FLOW_ID`, `LANGFLOW_API_KEY` |
 
 **По умолчанию:** `langflow`
@@ -298,6 +301,25 @@ OPENAI_API_KEY=sk-proj-abc123...
 
 ```bash
 RETRY_MAX_ATTEMPTS=2
+```
+
+---
+
+#### `PIPELINE_SERVICE_URL`
+
+**Назначение:** URL вынесенного Pipeline Service (HTTP-сервис с `PromptReviewPipeline`, см. `api/pipeline_service/README.md`). Используется только при `BACKEND_TYPE=langchain_service`.
+
+**Обязательность:** ⚪ Нет (только для `langchain_service`)
+
+**По умолчанию:** `http://localhost:8001`
+
+**Важно:** Pipeline Service — опциональный компонент, по умолчанию **не разворачивается**. Прод-развёртывание по умолчанию работает на `BACKEND_TYPE=langchain` (in-process). Порядок включения — в разделе «Pipeline Service (опционально)».
+
+**Пример:**
+
+```bash
+# Docker-развёртывание (контейнер pipeline-service в сети n8n_default)
+PIPELINE_SERVICE_URL=http://pipeline-service:8001
 ```
 
 ---
@@ -936,6 +958,79 @@ curl "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getMe"
 2. Переменные установлены
 3. API health check: `{"status":"ok"}`
 4. Telegram Bot API: `{"ok":true,"result":{"is_bot":true,...}}`
+
+---
+
+### Pipeline Service (опционально)
+
+Вынесенный `PromptReviewPipeline` как отдельный HTTP-сервис (`api/pipeline_service/`). Используется при `BACKEND_TYPE=langchain_service`: LLM-вызовы выполняются в отдельном контейнере, а не в процессе API.
+
+**По умолчанию компонент НЕ разворачивается** — стандартные модели развёртывания этого раздела не требуют. Разворачивайте только при необходимости изолировать LLM-нагрузку от процесса API.
+
+JSON-контракт, учёт токенов и retry-конфигурация идентичны in-process режиму — различие только в месте исполнения LLM-вызовов.
+
+#### Шаг 1: Запуск Pipeline Service
+
+**Действие:**
+
+```bash
+cd infra
+docker compose -p infra -f docker-compose.pipeline.yml --profile pipeline up -d --build
+```
+
+**Проверка:**
+
+```bash
+docker ps --filter name=prompt-review-pipeline
+curl http://localhost:8001/health
+```
+
+**Ожидаемый результат:**
+
+```json
+{"status":"ok","backend":"langchain","model":"openai"}
+```
+
+**Критерий успешного завершения:**
+
+- ✅ Контейнер `prompt-review-pipeline` запущен
+- ✅ `curl http://localhost:8001/health` возвращает `{"status":"ok",...}`
+
+#### Шаг 2: Перевод API на Pipeline Service
+
+**Действие:**
+
+Добавьте в `infra/.env`:
+
+```bash
+BACKEND_TYPE=langchain_service
+PIPELINE_SERVICE_URL=http://pipeline-service:8001
+```
+
+и пересоберите API:
+
+```bash
+docker compose -p infra -f docker-compose.api.yml up -d --build
+```
+
+**Критерий успешного завершения:**
+
+- ✅ `curl http://localhost:8000/health` показывает `"backend":"langchain_service","backend_available":true`
+- ✅ Тестовый запрос к API `/review` возвращает полный анализ (с `token_usage`)
+
+#### Шаг 3: Откат (если требуется)
+
+**Действие:**
+
+Верните в `infra/.env` значение `BACKEND_TYPE=langchain` (или удалите `BACKEND_TYPE=langchain_service`) и остановите сервис:
+
+```bash
+docker compose -p infra -f docker-compose.pipeline.yml --profile pipeline down
+```
+
+**Критерий успешного завершения:**
+
+- ✅ Health check API снова показывает `"backend":"langchain"`
 
 ---
 
@@ -1727,8 +1822,10 @@ docker logs prompt-review-api -f
 | `infra/docker-compose.api.yml` | Docker Compose для API | ✅ Да (для Docker) |
 | `infra/docker-compose.langflow.yml` | Docker Compose для LangFlow | ⚪ Нет (опционально) |
 | `infra/docker-compose.telegram.yml` | Docker Compose для Telegram Bot | ⚪ Нет (опционально) |
+| `infra/docker-compose.pipeline.yml` | Docker Compose для Pipeline Service | ⚪ Нет (опционально) |
 | `infra/Dockerfile.api` | Dockerfile для API | ✅ Да (для Docker) |
 | `infra/Dockerfile.telegram` | Dockerfile для Telegram Bot | ⚪ Нет (опционально) |
+| `infra/Dockerfile.pipeline` | Dockerfile для Pipeline Service | ⚪ Нет (опционально) |
 
 ### LangFlow файлы
 
@@ -1743,6 +1840,14 @@ docker logs prompt-review-api -f
 |------|------------|------------|
 | `api/telegram/bot.py` | Telegram Bot | ⚪ Нет (опционально) |
 | `api/telegram/requirements.txt` | Зависимости Telegram Bot | ⚪ Нет (опционально) |
+
+### Pipeline Service файлы
+
+| Файл | Назначение | Обязателен |
+|------|------------|------------|
+| `api/pipeline_service/main.py` | Точка входа Pipeline Service | ⚪ Нет (опционально) |
+| `api/pipeline_service/README.md` | Документация Pipeline Service | ⚪ Нет (опционально) |
+| `api/app/pipeline/` | Общий код конвейера (используется обоими backend-режимами) | ✅ Да |
 
 ### Web UI файлы
 
@@ -1930,6 +2035,11 @@ docker volume ls
 ---
 
 ## 📜 13. Change Log
+
+**2026-08-30 (v2.5):**
+- ✅ Вынесен Pipeline Service (опциональный компонент): `PromptReviewPipeline` доступен как отдельный HTTP-сервис (`api/pipeline_service/`), включается `BACKEND_TYPE=langchain_service` + `PIPELINE_SERVICE_URL`. JSON-контракт, учёт токенов и retry идентичны in-process режиму. По умолчанию НЕ разворачивается — существующие развёртывания не затронуты
+- ✅ Новая переменная `PIPELINE_SERVICE_URL` (опциональная) и режим `langchain_service` в `BACKEND_TYPE`
+- ✅ Новые файлы: `infra/Dockerfile.pipeline`, `infra/docker-compose.pipeline.yml`, `api/pipeline_service/` (см. разделы «Pipeline Service (опционально)» и Files Reference)
 
 **2026-08-30 (v2.4):**
 - ✅ Инженерные улучшения пайплайна (P3): retry для LLM-вызова при временных ошибках (`RETRY_MAX_ATTEMPTS`, по умолчанию 2; таймаут делится на попытки — общий бюджет запроса сохраняется)

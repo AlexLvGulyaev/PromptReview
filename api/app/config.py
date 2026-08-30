@@ -10,12 +10,16 @@ class Settings(BaseSettings):
     """Настройки приложения."""
 
     # Backend configuration
-    BACKEND_TYPE: str = "langflow"  # langflow или langchain
+    BACKEND_TYPE: str = "langflow"  # langflow | langchain | langchain_service
 
     # LangFlow configuration
     LANGFLOW_URL: str = "http://localhost:7860"
     LANGFLOW_FLOW_ID: str = ""
     LANGFLOW_API_KEY: str = ""
+
+    # Pipeline Service configuration (BACKEND_TYPE=langchain_service):
+    # отдельный HTTP-сервис с PromptReviewPipeline (см. api/pipeline_service/)
+    PIPELINE_SERVICE_URL: str = "http://localhost:8001"
 
     # LangChain configuration
     LANGCHAIN_MODEL: str = "openai"  # openai или ollama

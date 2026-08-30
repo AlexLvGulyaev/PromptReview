@@ -11,6 +11,7 @@ from langchain_core.language_models import BaseChatModel
 
 from ..schemas import PromptReviewRequest, PromptReviewResponse
 from ..pipeline import PromptReviewPipeline
+from ..pipeline.llm import create_llm
 from ..config import settings
 from ..logger import get_logger
 from .base import BackendAdapter
@@ -67,65 +68,19 @@ class LangChainAdapter(BackendAdapter):
         """
         Получить или создать LLM instance.
 
+        Конфигурация LLM (retry, таймаут-бюджет, провайдер) вынесена в
+        api/app/pipeline/llm.py и переиспользуется Pipeline Service.
+
         Returns:
             BaseChatModel: LangChain Chat Model
         """
-        if self._llm is not None:
-            return self._llm
-
-        # Ленивая инициализация LLM
-        if self.model == "openai":
-            from langchain_openai import ChatOpenAI
-
-            api_key = self.api_key or settings.OPENAI_API_KEY
-            if not api_key:
-                raise ValueError(
-                    "OPENAI_API_KEY is required for OpenAI model. "
-                    "Set it in environment or pass api_key parameter."
-                )
-
-            retry_attempts = max(0, settings.RETRY_MAX_ATTEMPTS)
-            # Бюджет REQUEST_TIMEOUT_SECONDS распределяется на все попытки:
-            # суммарное время LLM-вызова не превышает общий таймаут запроса
-            if retry_attempts:
-                attempt_timeout = max(5, self.timeout // (retry_attempts + 1))
-            else:
-                attempt_timeout = self.timeout
-            logger.info(
-                "LLM retry configuration",
-                extra={
-                    "backend": "langchain",
-                    "retry_max_attempts": retry_attempts,
-                    "request_timeout": self.timeout,
-                    "attempt_timeout": attempt_timeout,
-                }
+        if self._llm is None:
+            self._llm = create_llm(
+                model=self.model,
+                timeout=self.timeout,
+                api_key=self.api_key,
+                base_url=self.base_url,
             )
-
-            self._llm = ChatOpenAI(
-                api_key=api_key,
-                model=settings.OPENAI_MODEL,  # Configurable model
-                temperature=0,
-                timeout=attempt_timeout,
-                max_retries=retry_attempts,
-            )
-
-        elif self.model == "ollama":
-            from langchain_ollama import ChatOllama
-
-            base_url = self.base_url or settings.OLLAMA_BASE_URL or "http://localhost:11434"
-            ollama_model = settings.OLLAMA_MODEL or "gemma2:9b"
-
-            self._llm = ChatOllama(
-                model=ollama_model,
-                base_url=base_url,
-                temperature=0,
-            )
-
-        else:
-            raise ValueError(
-                f"Unknown model: {self.model}. Supported: openai, ollama"
-            )
-
         return self._llm
 
     async def review(self, request: PromptReviewRequest) -> PromptReviewResponse:

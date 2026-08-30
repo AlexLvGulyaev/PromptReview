@@ -1,0 +1,65 @@
+# Dockerfile for Prompt Review Pipeline Service
+# Version: 1.0
+#
+# Вынесенный PromptReviewPipeline как отдельный HTTP-сервис
+# (BACKEND_TYPE=langchain_service в API). Переиспользует api/app/pipeline/.
+#
+# Build:
+#   docker build -f Dockerfile.pipeline -t prompt-review-pipeline:latest ../api
+#
+# Run:
+#   docker run -p 8001:8001 --env-file .env prompt-review-pipeline:latest
+
+# ============================================================================
+# Stage 1: Builder
+# ============================================================================
+FROM python:3.11-slim AS builder
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements (общие с API: тот же пайплайн, те же зависимости)
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
+
+# ============================================================================
+# Stage 2: Runtime
+# ============================================================================
+FROM python:3.11-slim AS runtime
+
+WORKDIR /app
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy wheels from builder
+COPY --from=builder /app/wheels /wheels
+RUN pip install --no-cache-dir /wheels/* && rm -rf /wheels
+
+# Copy shared application code (pipeline, schemas, config, logger)
+COPY app ./app
+
+# Copy pipeline service entrypoint
+COPY pipeline_service ./pipeline_service
+
+# Create non-root user
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8001/health || exit 1
+
+# Expose port
+EXPOSE 8001
+
+# Default command
+CMD ["uvicorn", "pipeline_service.main:app", "--host", "0.0.0.0", "--port", "8001"]
