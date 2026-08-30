@@ -30,6 +30,10 @@ class JSONFormatter(logging.Formatter):
             log_data["user_id"] = record.user_id
         if hasattr(record, "processing_time_ms"):
             log_data["processing_time_ms"] = record.processing_time_ms
+        # Учёт токенов LLM (см. pipeline._usage_log_fields)
+        for field in ("tokens_input", "tokens_output", "tokens_total"):
+            if hasattr(record, field):
+                log_data[field] = getattr(record, field)
 
         # Добавляем traceback для ошибок
         if record.exc_info:

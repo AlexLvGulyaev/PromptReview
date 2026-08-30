@@ -36,6 +36,12 @@ class Settings(BaseSettings):
     REQUEST_TIMEOUT_SECONDS: int = 30
     MAX_PROMPT_LENGTH: int = 10000
 
+    # Retry (LangChain/OpenAI backend): повторные попытки при временных
+    # ошибках LLM (сеть, 408/429/5xx). 4xx-ошибки клиента не ретраятся
+    # (семантика встроенного retry OpenAI SDK). Бюджет общего времени
+    # запроса не превышается: таймаут делится на все попытки.
+    RETRY_MAX_ATTEMPTS: int = 2
+
     # Demo mode (public Web UI demo instances)
     DEMO_MODE: bool = False  # true: токен демо-сессии обязателен на POST /review
     DEMO_SESSION_TTL_MINUTES: int = 60

@@ -45,6 +45,8 @@ if os.path.exists(env_path):
 # Переменные окружения
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 PROMPT_REVIEW_API_URL = os.getenv('PROMPT_REVIEW_API_URL', 'http://localhost:8000')
+# X-API-Key для server-to-server доступа (обходит demo-режим API, если установлен)
+API_KEY = os.getenv('API_KEY', '')
 API_TIMEOUT = int(os.getenv('API_TIMEOUT', '60'))
 
 # Настройка логирования
@@ -107,9 +109,14 @@ async def call_review_api(text: str, user_id: str) -> dict:
     url = f"{PROMPT_REVIEW_API_URL}/review"
     timeout = httpx.Timeout(API_TIMEOUT)
 
+    headers = {}
+    if API_KEY:
+        # S2S-клиент с API_KEY: обходит demo-режим API (DEMO_MODE=true)
+        headers['X-API-Key'] = API_KEY
+
     async with httpx.AsyncClient(timeout=timeout) as client:
         try:
-            response = await client.post(url, json=payload)
+            response = await client.post(url, json=payload, headers=headers)
             response.raise_for_status()
             return response.json()
 

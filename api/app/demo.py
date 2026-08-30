@@ -15,6 +15,7 @@ Backend — единственный источник правды по квот
 """
 
 import asyncio
+import hmac
 import secrets
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -241,7 +242,8 @@ def get_client_ip(request: Request) -> Optional[str]:
 async def require_demo_session(request: Request) -> DemoSession:
     """Проверить демо-токен и списать один запрос из квоты.
 
-    Вызывается в POST /review, когда включён DEMO_MODE.
+    Вызывается в POST /review, когда включён DEMO_MODE
+    и клиент не является доверенным S2S-клиентом (см. is_trusted_client).
     """
     token = request.headers.get("x-demo-token")
     return await store.check_and_record_request(token)
@@ -252,6 +254,14 @@ def is_demo_mode_enabled() -> bool:
     return settings.DEMO_MODE
 
 
-def monotonic_ts() -> float:
-    """Монотонные часы для внутренних замеров (не входит в контракт API)."""
-    return time.monotonic()
+def is_trusted_client(request: Request) -> bool:
+    """Доверенный S2S-клиент (Telegram-бот, n8n): X-API-Key совпадает с API_KEY.
+
+    Демо-лимитеры рассчитаны на анонимных браузерных посетителей; доверенный
+    клиент с валидным X-API-Key не попадает под сессии/квоты/интервалы.
+    """
+    expected = settings.API_KEY
+    if not expected:
+        return False
+    provided = request.headers.get("x-api-key", "")
+    return hmac.compare_digest(provided, expected)

@@ -126,7 +126,7 @@ async function checkAPIStatus() {
 /**
  * Анализ промпта через API.
  */
-async function analyzePrompt(text) {
+async function analyzePrompt(text, isRetry = false) {
     const headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -148,6 +148,19 @@ async function analyzePrompt(text) {
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        if (demoSession && !isRetry && (response.status === 401 || response.status === 403)) {
+            // Токен неизвестен серверу (сессия истекла или API перезапущен):
+            // сбрасываем, прозрачно начинаем новую демо-сессию и повторяем запрос
+            handleDemoErrors(response, errorData);
+            try {
+                await startDemoSession();
+                return await analyzePrompt(text, true);
+            } catch (recoveryError) {
+                // Восстановление не удалось (например, лимит сессий с IP исчерпан) —
+                // показываем его ошибку, она информативнее исходного 403
+                throw new Error(recoveryError.message || errorData.message || `Ошибка сервера: ${response.status}`);
+            }
+        }
         handleDemoErrors(response, errorData);
         throw new Error(errorData.message || `Ошибка сервера: ${response.status}`);
     }
@@ -501,8 +514,8 @@ function renderNotPromptResult(data) {
         elements.conversionList.innerHTML = '<li>Добавьте роль: "Ты — ..."</li><li>Укажите цель: "Сделай так-то..."</li>';
     }
 
-    // Время обработки
-    elements.notPromptTime.textContent = `Время обработки: ${data.processing_time_ms || 0} мс`;
+    // Время обработки и токены
+    elements.notPromptTime.textContent = formatProcessingFooter(data);
 }
 
 /**
@@ -597,8 +610,20 @@ function renderPromptResult(data) {
         elements.improvedSection.style.display = 'none';
     }
 
-    // Время обработки
-    elements.promptTime.textContent = `Время обработки: ${data.processing_time_ms || 0} мс`;
+    // Время обработки и токены
+    elements.promptTime.textContent = formatProcessingFooter(data);
+}
+
+/**
+ * Строка метрик обработки: время + учёт токенов LLM (если backend их отдал).
+ */
+function formatProcessingFooter(data) {
+    let text = `Время обработки: ${data.processing_time_ms || 0} мс`;
+    const usage = data.token_usage;
+    if (usage && usage.total_tokens > 0) {
+        text += ` · Токены: ${usage.total_tokens} (${usage.input_tokens}/${usage.output_tokens})`;
+    }
+    return text;
 }
 
 /**

@@ -84,11 +84,29 @@ class LangChainAdapter(BackendAdapter):
                     "Set it in environment or pass api_key parameter."
                 )
 
+            retry_attempts = max(0, settings.RETRY_MAX_ATTEMPTS)
+            # Бюджет REQUEST_TIMEOUT_SECONDS распределяется на все попытки:
+            # суммарное время LLM-вызова не превышает общий таймаут запроса
+            if retry_attempts:
+                attempt_timeout = max(5, self.timeout // (retry_attempts + 1))
+            else:
+                attempt_timeout = self.timeout
+            logger.info(
+                "LLM retry configuration",
+                extra={
+                    "backend": "langchain",
+                    "retry_max_attempts": retry_attempts,
+                    "request_timeout": self.timeout,
+                    "attempt_timeout": attempt_timeout,
+                }
+            )
+
             self._llm = ChatOpenAI(
                 api_key=api_key,
                 model=settings.OPENAI_MODEL,  # Configurable model
                 temperature=0,
-                timeout=self.timeout,
+                timeout=attempt_timeout,
+                max_retries=retry_attempts,
             )
 
         elif self.model == "ollama":

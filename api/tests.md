@@ -863,3 +863,26 @@ class Config:
 - Тест 10 выполнен на втором инстансе (порт 8010 занят — проверен guard-ответом на основном порту с `DEMO_MODE=false`).
 
 **Итог:** Demo Limiter работает в соответствии с паттерном tokenized demo limiter (Source Case: ai-curator). Backend — единственный источник правды по квоте; при `DEMO_MODE=false` поведение сервиса не изменяется.
+
+---
+
+## 13. Дополнительное тестирование: Retry и учёт токенов (P3)
+
+**Дата:** 2026-08-30
+**Скоп:**retry-конфигурация `LangChainAdapter` + поле `token_usage` в `/review` + `tokens_*` в структурных логах.
+
+| # | Тест | Результат |
+|---|------|-----------|
+| 1 | Unit: `LangChainAdapter._get_llm()` при `RETRY_MAX_ATTEMPTS=2` | `max_retries: 2`, `request_timeout: 10s` (бюджет 30с / 3 попытки, floor 5с) — **PASS** |
+| 2 | `/health` после изменений | `{"status":"ok","backend":"langchain","backend_available":true,"demo_mode":true}` — **PASS** |
+| 3 | `/review` (реальный LLM): локальный инстанс | `token_usage: {"input_tokens": 853, "output_tokens": 342, "total_tokens": 1195}`, `quality_level: fair` — **PASS** |
+| 4 | Структурные логи | `LLM retry configuration` (backend/retry_max_attempts/request_timeout/attempt_timeout) + запись `Prompt review completed` с `tokens_input/tokens_output/tokens_total` — **PASS** |
+| 5 | Демо-режим не затронут | `/demo/start` → токен; `/review` с `x-demo-token` → 200 + списание квоты + `token_usage` в ответе — **PASS** |
+| 6 | Live-инстанс (production) после пересборки контейнера | реальный `/review` → `token_usage: {"input_tokens": 884, "output_tokens": 414, "total_tokens": 1298}` — **PASS** |
+
+**Примечания:**
+- Retry работает через встроенный механизм `ChatOpenAI` (OpenAI SDK): ретраятся только временные ошибки (сеть, 408/429/5xx); 4xx клиента — без повторов.
+- `token_usage` заполняется из `usage_metadata` через `UsageMetadataCallbackHandler` (langchain-core); для Ollama может отсутствовать (`null`).
+- Проверка на ретрирующихся ошибках в проде не выполнялась (нет инъекции сбоя); семантика retry гарантирована OpenAI SDK.
+
+**Итог:** P3 (токены, retry, структурные логи) реализован и подтверждён на локальном и production-инстансах.

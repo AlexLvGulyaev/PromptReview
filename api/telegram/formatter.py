@@ -8,6 +8,23 @@ from typing import Dict, Any, List, Optional
 from html import escape as html_escape
 
 
+
+def _time_and_tokens_line(data: Dict[str, Any]) -> str:
+    """Футер с временем обработки и учётом токенов LLM (если backend отдал usage)."""
+    processing_time = data.get('processing_time_ms', 0)
+    if processing_time:
+        line = f"Время обработки: {processing_time} мс"
+    else:
+        line = "Время обработки: 0 мс"
+    token_usage = data.get('token_usage')
+    if token_usage and token_usage.get('total_tokens'):
+        line += (
+            f" • Токены: {token_usage['total_tokens']}"
+            f" ({token_usage.get('input_tokens', 0)}/{token_usage.get('output_tokens', 0)})"
+        )
+    return f"<i>{line}</i>"
+
+
 def format_prompt_response(data: Dict[str, Any]) -> str:
     """
     Форматирование ответа для промпта (is_prompt=true).
@@ -137,9 +154,8 @@ def format_prompt_response(data: Dict[str, Any]) -> str:
         sections.append("</pre>")
         sections.append("")
 
-    # Время обработки
-    processing_time = data.get('processing_time_ms', 0)
-    sections.append(f"<i>Время обработки: {processing_time} мс</i>")
+    # Время обработки и токены
+    sections.append(_time_and_tokens_line(data))
 
     return '\n'.join(sections)
 
@@ -185,9 +201,8 @@ def format_not_prompt_response(data: Dict[str, Any]) -> str:
             sections.append(f"{i}. {html_escape(option)}")
         sections.append("")
 
-    # Время обработки
-    processing_time = data.get('processing_time_ms', 0)
-    sections.append(f"<i>Время обработки: {processing_time} мс</i>")
+    # Время обработки и токены
+    sections.append(_time_and_tokens_line(data))
 
     return '\n'.join(sections)
 

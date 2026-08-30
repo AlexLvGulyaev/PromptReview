@@ -34,6 +34,7 @@ from .adapters import get_backend_adapter, BackendAdapter
 from .demo import (
     get_client_ip,
     is_demo_mode_enabled,
+    is_trusted_client,
     require_demo_session,
     store,
 )
@@ -163,8 +164,9 @@ async def review(request: PromptReviewRequest, req: Request, response: Response)
     # Генерируем request_id если не указан
     request_id = request.request_id or f"req_{int(time.time() * 1000)}_{uuid.uuid4().hex[:8]}"
 
-    # Demo mode: проверка токена и списание квоты до похода в LLM
-    if is_demo_mode_enabled():
+    # Demo mode: проверка токена и списание квоты до похода в LLM.
+    # Доверенные S2S-клиенты (X-API-Key) идут мимо демо-лимитов.
+    if is_demo_mode_enabled() and not is_trusted_client(req):
         demo_session = await require_demo_session(req)
         response.headers["X-Demo-Requests-Remaining"] = str(demo_session.requests_remaining)
 

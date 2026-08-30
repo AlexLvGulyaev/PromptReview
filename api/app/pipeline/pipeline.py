@@ -16,8 +16,9 @@ import uuid
 from typing import Optional
 
 from langchain_core.language_models import BaseChatModel
+from langchain_core.callbacks import UsageMetadataCallbackHandler
 
-from ..schemas import PromptReviewRequest, PromptReviewResponse
+from ..schemas import PromptReviewRequest, PromptReviewResponse, TokenUsage
 from .metrics import collect_metrics
 from .classifier import classify_prompt, ClassificationResult
 from .reviewer import review_prompt, ReviewResult
@@ -26,6 +27,30 @@ from .composer import compose_result, compose_not_prompt
 from ..logger import get_logger
 
 logger = get_logger(__name__)
+
+
+def _summarize_usage(callback: UsageMetadataCallbackHandler) -> Optional[TokenUsage]:
+    """Суммировать usage_metadata по всем LLM-вызовам запроса.
+
+    Args:
+        callback: заполненный UsageMetadataCallbackHandler
+
+    Returns:
+        TokenUsage или None, если провайдер не отдал данных о токенах.
+    """
+    usage_by_model = callback.usage_metadata or {}
+    if not usage_by_model:
+        return None
+
+    summary = TokenUsage()
+    for model_usage in usage_by_model.values():
+        summary.input_tokens += model_usage.get("input_tokens", 0)
+        summary.output_tokens += model_usage.get("output_tokens", 0)
+        summary.total_tokens += model_usage.get("total_tokens", 0)
+
+    if summary.total_tokens == 0:
+        return None
+    return summary
 
 
 class PromptReviewPipeline:
@@ -70,6 +95,10 @@ class PromptReviewPipeline:
         )
 
         try:
+            # Callback учёта токенов на все LLM-вызоры запроса
+            usage_callback = UsageMetadataCallbackHandler()
+            llm_callbacks = [usage_callback]
+
             # Этап 1: Сбор метрик
             metrics = collect_metrics(request.prompt_text)
             logger.debug(
@@ -82,7 +111,11 @@ class PromptReviewPipeline:
             )
 
             # Этап 2: Классификация
-            classification = await classify_prompt(self.llm, request.prompt_text)
+            classification = await classify_prompt(
+                self.llm,
+                request.prompt_text,
+                callbacks=llm_callbacks,
+            )
             logger.info(
                 f"Classification completed",
                 extra={
@@ -96,19 +129,23 @@ class PromptReviewPipeline:
 
             # Если текст не является промптом
             if not classification.is_prompt:
-                return compose_not_prompt(
+                response = compose_not_prompt(
                     request_id=request_id,
                     user_id=request.user_id,
                     metrics=metrics,
                     classification=classification,
                     processing_time_ms=processing_time_ms,
                 )
+                response.token_usage = _summarize_usage(usage_callback)
+                _log_usage(request_id, response.token_usage)
+                return response
 
             # Этап 3: Анализ качества
             review_result = await review_prompt(
                 self.llm,
                 request.prompt_text,
                 metrics,
+                callbacks=llm_callbacks,
             )
             logger.info(
                 f"Review completed",
@@ -124,6 +161,7 @@ class PromptReviewPipeline:
                 self.llm,
                 request.prompt_text,
                 review_result,
+                callbacks=llm_callbacks,
             )
             if revised_prompt:
                 logger.debug(
@@ -142,6 +180,7 @@ class PromptReviewPipeline:
                 revised_prompt=revised_prompt,
                 processing_time_ms=processing_time_ms,
             )
+            response.token_usage = _summarize_usage(usage_callback)
 
             logger.info(
                 f"Prompt review completed",
@@ -150,6 +189,7 @@ class PromptReviewPipeline:
                     "is_prompt": True,
                     "quality_level": response.quality_level.value,
                     "processing_time_ms": processing_time_ms,
+                    **_usage_log_fields(response.token_usage),
                 }
             )
 
@@ -164,3 +204,24 @@ class PromptReviewPipeline:
                 }
             )
             raise
+
+
+def _usage_log_fields(token_usage: Optional[TokenUsage]) -> dict:
+    """Поля токенов для extra-словаря структурного лога."""
+    if token_usage is None:
+        return {}
+    return {
+        "tokens_input": token_usage.input_tokens,
+        "tokens_output": token_usage.output_tokens,
+        "tokens_total": token_usage.total_tokens,
+    }
+
+
+def _log_usage(request_id: str, token_usage: Optional[TokenUsage]) -> None:
+    """Залогировать учёт токенов (ветка is_prompt=false)."""
+    if token_usage is None:
+        return
+    logger.info(
+        "LLM token usage",
+        extra={"request_id": request_id, **_usage_log_fields(token_usage)},
+    )

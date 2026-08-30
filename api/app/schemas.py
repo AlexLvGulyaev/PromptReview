@@ -118,6 +118,17 @@ class PromptReviewRequest(BaseModel):
 # RESPONSE
 # ============================================================================
 
+class TokenUsage(BaseModel):
+    """Учёт токенов LLM за один запрос (суммарно по всем вызовам пайплайна).
+
+    Заполняется из usage_metadata провайдера (OpenAI и совместимые).
+    `null`, если backend не отдаёт данные о токенах.
+    """
+    input_tokens: int = Field(0, description="Токены запросов (промпты + инструкции)")
+    output_tokens: int = Field(0, description="Токены ответов LLM")
+    total_tokens: int = Field(0, description="Суммарные токены запроса")
+
+
 class PromptReviewResponse(BaseModel):
     """Ответ на анализ промпта.
 
@@ -169,6 +180,10 @@ class PromptReviewResponse(BaseModel):
 
     # Общие поля
     metrics: PromptMetrics = Field(..., description="Метрики текста")
+    token_usage: Optional[TokenUsage] = Field(
+        default=None,
+        description="Учёт токенов LLM за запрос (null, если backend не отдаёт usage)"
+    )
     processing_time_ms: int = Field(..., description="Время обработки в миллисекундах")
     notes: List[str] = Field(
         default_factory=list,

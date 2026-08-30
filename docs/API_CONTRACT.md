@@ -135,6 +135,12 @@ class Source(str, Enum):
 - Исчерпанная квота — **429** `demo_quota_exhausted`.
 - Успешный ответ содержит заголовок `X-Demo-Requests-Remaining` с остатком квоты.
 
+**Исключение для доверенных S2S-клиентов:** запрос с заголовком `X-API-Key`,
+совпадающим с `API_KEY` из окружения API (Telegram-бот, n8n), проходит
+без демо-токенов и демо-лимитов. Демо-лимитеры рассчитаны на анонимных
+браузерных посетителей и не подходят для мультипользовательских
+server-to-server клиентов. При неустановленном `API_KEY` механизм выключен.
+
 При `DEMO_MODE=false` (значение по умолчанию) endpoint работает без токенов —
 поведение локальных развёртываний и интеграций не меняется.
 
@@ -173,8 +179,11 @@ class ReviewMode(str, Enum):
 | `is_prompt` | boolean | Является ли текст промптом |
 | `quality_level` | enum | Уровень качества промпта |
 | `metrics` | object | Метрики текста |
+| `token_usage` | object \| null | Учёт токенов LLM за запрос (все вызовы пайплайна); `null`, если backend не отдаёт usage |
 | `processing_time_ms` | integer | Время обработки в миллисекундах |
 | `notes` | array<string> | Дополнительные заметки |
+
+`token_usage`: `{ "input_tokens": int, "output_tokens": int, "total_tokens": int }` — заполняется из `usage_metadata` провайдера (поддерживается LangChain/OpenAI backend); для Ollama может отсутствовать.
 
 ---
 

@@ -91,6 +91,7 @@ uvicorn app.main:app --reload
 | `LOG_LEVEL` | Уровень логирования | Нет (default: INFO) |
 | `REQUEST_TIMEOUT_SECONDS` | Timeout запросов к backend | Нет (default: 30) |
 | `MAX_PROMPT_LENGTH` | Максимальная длина промпта | Нет (default: 10000) |
+| `RETRY_MAX_ATTEMPTS` | Повторные попытки LLM-вызова при временных ошибках (сеть/429/5xx); таймаут делится на попытки | Нет (default: 2) |
 
 ## Примеры запросов
 

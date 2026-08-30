@@ -8,7 +8,7 @@
 import json
 import re
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, List, Optional
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
@@ -64,7 +64,11 @@ def parse_json_response(content: str) -> dict:
         raise ValueError(f"Failed to parse JSON response: {e}\nOriginal: {content}")
 
 
-async def classify_prompt(llm: BaseChatModel, prompt_text: str) -> ClassificationResult:
+async def classify_prompt(
+    llm: BaseChatModel,
+    prompt_text: str,
+    callbacks: Optional[List[Any]] = None,
+) -> ClassificationResult:
     """
     Классифицировать текст: является ли он промптом.
 
@@ -73,6 +77,8 @@ async def classify_prompt(llm: BaseChatModel, prompt_text: str) -> Classificatio
     Args:
         llm: LangChain Chat Model
         prompt_text: Текст для классификации
+        callbacks: Callback-обработчики LangChain (например,
+            UsageMetadataCallbackHandler для учёта токенов)
 
     Returns:
         ClassificationResult: Результат классификации
@@ -80,11 +86,16 @@ async def classify_prompt(llm: BaseChatModel, prompt_text: str) -> Classificatio
     prompt = ChatPromptTemplate.from_template(CLASSIFIER_PROMPT)
     chain = prompt | llm
 
+    config = {"callbacks": callbacks} if callbacks else None
+
     try:
-        response = await chain.ainvoke({
-            "prompt_text": prompt_text,
-            "format_instructions": CLASSIFIER_FORMAT_INSTRUCTIONS,
-        })
+        response = await chain.ainvoke(
+            {
+                "prompt_text": prompt_text,
+                "format_instructions": CLASSIFIER_FORMAT_INSTRUCTIONS,
+            },
+            config=config,
+        )
 
         # Парсим JSON-ответ
         content = response.content if hasattr(response, "content") else str(response)

@@ -7,7 +7,7 @@
 import json
 import re
 from dataclasses import dataclass, field
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
@@ -91,6 +91,7 @@ async def review_prompt(
     llm: BaseChatModel,
     prompt_text: str,
     metrics: PromptMetrics,
+    callbacks: Optional[List[Any]] = None,
 ) -> ReviewResult:
     """
     Проанализировать качество промпта.
@@ -101,6 +102,8 @@ async def review_prompt(
         llm: LangChain Chat Model
         prompt_text: Текст промпта
         metrics: Метрики промпта
+        callbacks: Callback-обработчики LangChain (например,
+            UsageMetadataCallbackHandler для учёта токенов)
 
     Returns:
         ReviewResult: Результат анализа
@@ -108,12 +111,17 @@ async def review_prompt(
     prompt = ChatPromptTemplate.from_template(REVIEW_PROMPT)
     chain = prompt | llm
 
+    config = {"callbacks": callbacks} if callbacks else None
+
     try:
-        response = await chain.ainvoke({
-            "prompt_text": prompt_text,
-            "metrics": json.dumps(metrics.model_dump(), ensure_ascii=False, indent=2),
-            "format_instructions": REVIEW_FORMAT_INSTRUCTIONS,
-        })
+        response = await chain.ainvoke(
+            {
+                "prompt_text": prompt_text,
+                "metrics": json.dumps(metrics.model_dump(), ensure_ascii=False, indent=2),
+                "format_instructions": REVIEW_FORMAT_INSTRUCTIONS,
+            },
+            config=config,
+        )
 
         # Парсим JSON-ответ
         content = response.content if hasattr(response, "content") else str(response)

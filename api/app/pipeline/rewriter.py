@@ -4,7 +4,7 @@
 Вызывает LLM для создания улучшенной версии промпта (PEl05 approach).
 """
 
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
@@ -21,6 +21,7 @@ async def rewrite_prompt(
     llm: BaseChatModel,
     prompt_text: str,
     review_result: ReviewResult,
+    callbacks: Optional[List[Any]] = None,
 ) -> Optional[str]:
     """
     Создать улучшенную редакцию промпта.
@@ -31,6 +32,8 @@ async def rewrite_prompt(
         llm: LangChain Chat Model
         prompt_text: Исходный текст промпта
         review_result: Результат анализа качества
+        callbacks: Callback-обработчики LangChain (например,
+            UsageMetadataCallbackHandler для учёта токенов)
 
     Returns:
         Optional[str]: Улучшенная редакция промпта или None при ошибке
@@ -38,17 +41,22 @@ async def rewrite_prompt(
     prompt = ChatPromptTemplate.from_template(REWRITER_PROMPT)
     chain = prompt | llm
 
+    config = {"callbacks": callbacks} if callbacks else None
+
     try:
         # Формируем списки для промпта
         weaknesses_text = "\n".join(f"- {w}" for w in review_result.weaknesses)
         recommendations_text = "\n".join(f"- {r.text}" for r in review_result.recommendations)
 
-        response = await chain.ainvoke({
-            "prompt_text": prompt_text,
-            "weaknesses": weaknesses_text,
-            "recommendations": recommendations_text,
-            "format_instructions": REWRITER_FORMAT_INSTRUCTIONS,
-        })
+        response = await chain.ainvoke(
+            {
+                "prompt_text": prompt_text,
+                "weaknesses": weaknesses_text,
+                "recommendations": recommendations_text,
+                "format_instructions": REWRITER_FORMAT_INSTRUCTIONS,
+            },
+            config=config,
+        )
 
         # Парсим JSON-ответ
         content = response.content if hasattr(response, "content") else str(response)
