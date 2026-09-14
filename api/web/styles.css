@@ -75,6 +75,62 @@
     --transition-slow: 350ms ease;
 }
 
+/* День/ночь — светлый override по RF-схеме (владелец: консоли/админки =
+   белая земля + голубые панели): те же имена токенов, акцент —
+   затемнённый teal для контраста на белом. Ключ `ai-theme` общий
+   с RF/AIC/RAR/MAB. */
+:root[data-theme='light'] {
+    /* Background Colors */
+    --bg-primary: #ffffff;
+    --bg-secondary: #e7ebf3;
+    --bg-tertiary: #eef1f8;
+    --bg-elevated: #eef1f8;
+    --bg-hover: #dfe5ef;
+    --bg-input: #f4f6fa;
+
+    /* Text Colors */
+    --text-primary: #16202f;
+    --text-secondary: #33415a;
+    --text-tertiary: #5a6880;
+    --text-muted: #7c8aa0;
+
+    /* Accent Colors */
+    --accent-primary: #0d9488;
+    --accent-secondary: #0f766e;
+    --accent-glow: rgba(13, 148, 136, 0.12);
+    --accent-border: rgba(13, 148, 136, 0.35);
+
+    /* Quality Level Colors */
+    --excellent-primary: #15803d;
+    --excellent-glow: rgba(21, 128, 61, 0.12);
+    --excellent-border: rgba(21, 128, 61, 0.35);
+
+    --good-primary: #0d9488;
+    --good-glow: rgba(13, 148, 136, 0.12);
+    --good-border: rgba(13, 148, 136, 0.35);
+
+    --fair-primary: #b45309;
+    --fair-glow: rgba(180, 83, 9, 0.12);
+    --fair-border: rgba(180, 83, 9, 0.35);
+
+    --poor-primary: #dc2626;
+    --poor-glow: rgba(220, 38, 38, 0.12);
+    --poor-border: rgba(220, 38, 38, 0.35);
+
+    /* Status Colors */
+    --success: #15803d;
+    --success-glow: rgba(21, 128, 61, 0.12);
+    --error: #dc2626;
+    --error-glow: rgba(220, 38, 38, 0.12);
+    --warning: #b45309;
+    --warning-glow: rgba(180, 83, 9, 0.12);
+
+    /* Border Colors */
+    --border-subtle: rgba(15, 23, 42, 0.08);
+    --border-default: #c3ccdc;
+    --border-strong: #97a5bd;
+}
+
 /* Reset */
 *, *::before, *::after {
     box-sizing: border-box;
@@ -119,6 +175,58 @@ body {
     display: flex;
     align-items: center;
     gap: var(--space-md);
+}
+
+/* Возврат на страницу проекта в витрине AIP (канон RAR/AIC/RF/HRA) */
+.return-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--border-default);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background var(--transition-fast), color var(--transition-fast),
+                border-color var(--transition-fast);
+}
+
+.return-btn:hover {
+    background: var(--accent-glow);
+    color: var(--accent-primary);
+    border-color: var(--accent-border);
+}
+
+.return-btn:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+}
+
+/* День/ночь — переключатель темы (паттерн MAB, ключ `ai-theme`) */
+.theme-toggle {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--border-default);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.theme-toggle:hover {
+    background: var(--accent-glow);
+    border-color: var(--accent-border);
+}
+
+.theme-toggle:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
 }
 
 .header__logo {
@@ -234,6 +342,14 @@ body {
     .demo-badge__detail {
         display: none;
     }
+
+    .header {
+        padding: var(--space-md);
+    }
+
+    .status-text {
+        display: none;
+    }
 }
 
 /* Demo quota exhausted */
@@ -244,7 +360,7 @@ body {
     padding: var(--space-sm) var(--space-md);
     margin-bottom: var(--space-md);
     background: var(--warning-glow);
-    border: 1px solid rgba(245, 158, 11, 0.3);
+    border: 1px solid var(--fair-border);
     border-radius: var(--radius-md);
     color: var(--warning);
     font-size: 0.875rem;
@@ -445,7 +561,7 @@ body {
 }
 
 .error-retry-btn:hover {
-    background: #dc2626;
+    background: var(--error);
 }
 
 /* Results Section */

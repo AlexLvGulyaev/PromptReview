@@ -9,12 +9,25 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script>
+        /* Тема применяется до отрисовки (без вспышки): ключ `ai-theme`
+           общий с RF/AIC/RAR/MAB. */
+        (function () {
+            try {
+                var t = localStorage.getItem('ai-theme');
+                if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+            } catch (e) { /* localStorage недоступен */ }
+        })();
+    </script>
 </head>
 <body>
     <div class="app">
         <!-- Header -->
         <header class="header">
             <div class="header__brand">
+                <button type="button" class="return-btn" id="return-to-portfolio"
+                        title="Вернуться на страницу проекта в витрине AIP."
+                        aria-label="Вернуться на страницу проекта в витрине AIP.">↩</button>
                 <svg class="header__logo" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M16 4l-12 8v16h24v-16l-12-8z"/>
                     <path d="M16 12v8"/>
@@ -35,6 +48,11 @@
                 </div>
                 <div class="status-indicator" id="status-indicator"></div>
                 <span class="status-text" id="status-text">Проверка статуса...</span>
+                <button type="button" class="theme-toggle" id="theme-toggle"
+                        title="Переключить светлую/тёмную тему (запоминается в браузере)"
+                        aria-label="Включить светлую тему">
+                    <span id="theme-toggle__icon">☀️</span>
+                </button>
             </div>
         </header>
 
@@ -237,6 +255,50 @@
         </footer>
     </div>
 
+    <!-- Возврат на страницу проекта (канон RAR/AIC/RF/HRA): из витрины
+         (живой window.opener) — фокус исходной вкладки и закрытие вкладки
+         демо; при прямом заходе — переход в той же вкладке. Скрипт инлайн
+         (не в app.js) — урок HRA: интерактивность не должна жить в кэше. -->
+    <script>
+        (function () {
+            'use strict';
+            var btn = document.getElementById('return-to-portfolio');
+            if (!btn) return;
+            btn.addEventListener('click', function () {
+                try {
+                    if (window.opener && !window.opener.closed) {
+                        window.opener.focus();
+                        window.close();
+                        return;
+                    }
+                } catch (e) { /* opener недоступен — обычный переход */ }
+                window.location.href = 'https://ai.alex-n8n.site/cases/prompt-review.html';
+            });
+        })();
+        /* День/ночь: переключатель темы, ключ `ai-theme` общий с
+           RF/AIC/RAR/MAB; выбор сохраняется в localStorage. */
+        (function () {
+            var btn = document.getElementById('theme-toggle');
+            if (!btn) return;
+            var icon = document.getElementById('theme-toggle__icon');
+            function current() {
+                return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+            }
+            function render() {
+                var light = current() === 'light';
+                if (icon) icon.textContent = light ? '🌙' : '☀️';
+                btn.setAttribute('aria-label', light ? 'Включить тёмную тему' : 'Включить светлую тему');
+            }
+            btn.addEventListener('click', function () {
+                var next = current() === 'light' ? 'dark' : 'light';
+                if (next === 'light') document.documentElement.setAttribute('data-theme', 'light');
+                else document.documentElement.removeAttribute('data-theme');
+                try { localStorage.setItem('ai-theme', next); } catch (e) { /* нет доступа */ }
+                render();
+            });
+            render();
+        })();
+    </script>
     <script src="app.js"></script>
 </body>
 </html>
