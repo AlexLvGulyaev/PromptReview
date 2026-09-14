@@ -6,14 +6,14 @@
 # прод-инстанс работает на in-process backend (BACKEND_TYPE=langchain).
 #
 # Deploy (только при необходимости выноса LLM-вызовов из API):
-#   docker compose -p infra -f docker-compose.pipeline.yml --profile pipeline up -d
+#   docker compose -f docker-compose.pipeline.yml --profile pipeline up -d
 #
 # Check:
-#   docker compose -p infra -f docker-compose.pipeline.yml --profile pipeline ps
-#   docker compose -p infra -f docker-compose.pipeline.yml --profile pipeline logs -f
+#   docker compose -f docker-compose.pipeline.yml --profile pipeline ps
+#   docker compose -f docker-compose.pipeline.yml --profile pipeline logs -f
 #
 # Stop:
-#   docker compose -p infra -f docker-compose.pipeline.yml --profile pipeline down
+#   docker compose -f docker-compose.pipeline.yml --profile pipeline down
 #
 # Включение в API: BACKEND_TYPE=langchain_service и
 # PIPELINE_SERVICE_URL=http://pipeline-service:8001 в .env, затем
