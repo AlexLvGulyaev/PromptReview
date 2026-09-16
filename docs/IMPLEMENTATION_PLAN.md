@@ -1,6 +1,6 @@
 # 📋 IMPLEMENTATION_PLAN.md
 
-## 🎯 Технический план реализации Prompt Review Service
+## 🎯 1. Технический план реализации Prompt Review Service
 
 **Версия:** 1.0
 **Дата:** 2026-07-05
@@ -8,7 +8,7 @@
 
 ---
 
-## 🎯 Обзор плана
+## 🎯 2. Обзор плана
 
 План описывает реализацию v4 — FastAPI API-слоя для Prompt Review Service. Реализация следует принципам поэтапной разработки с чёткими критериями завершения каждого этапа.
 
@@ -25,7 +25,7 @@ LangFlow или LangChain backend
 
 ---
 
-## 📋 Этап 1: Структура проекта и конфигурация
+## 📋 3. Этап 1: Структура проекта и конфигурация
 
 ### 1.1 Цель
 
@@ -72,7 +72,7 @@ pydantic-settings>=2.1.0
 
 ---
 
-## 📋 Этап 2: Pydantic-модели и валидация
+## 📋 4. Этап 2: Pydantic-модели и валидация
 
 ### 2.1 Цель
 
@@ -98,7 +98,7 @@ api/
     └── schemas.py
 ```
 
-**schemas.py — ключевые модели:**
+**schemas.py — модели:**
 
 ```python
 from pydantic import BaseModel, Field
@@ -184,7 +184,7 @@ class ErrorResponse(BaseModel):
 
 ---
 
-## 📋 Этап 3: Backend-адаптеры
+## 📋 5. Этап 3: Backend-адаптеры
 
 ### 3.1 Цель
 
@@ -257,7 +257,7 @@ class BackendAdapter(ABC):
 
 ---
 
-## 📋 Этап 4: FastAPI-сервер
+## 📋 6. Этап 4: FastAPI-сервер
 
 ### 4.1 Цель
 
@@ -286,7 +286,7 @@ api/
     └── logger.py
 ```
 
-**main.py — ключевые компоненты:**
+**main.py — компоненты:**
 
 ```python
 from fastapi import FastAPI, HTTPException, Request
@@ -360,7 +360,7 @@ async def review(request: PromptReviewRequest, req: Request):
 
 ---
 
-## 🧪 Этап 5: Тестирование FastAPI
+## 🧪 7. Этап 5: Тестирование FastAPI
 
 ### 5.1 Цель
 
@@ -394,21 +394,21 @@ api/
 ```markdown
 # Тестовые сценарии Prompt Review Service
 
-## 🔌 1. Endpoint: GET /
+## 🔌 8. Endpoint: GET /
 
 ### 1.1. Корневой endpoint
 **Request:** GET /
 **Expected Response:** {"status": "up"}
 **Status:** ✅/❌
 
-## 🔌 2. Endpoint: GET /health
+## 🔌 9. Endpoint: GET /health
 
 ### 2.1. Health check
 **Request:** GET /health
 **Expected Response:** {"status": "ok"}
 **Status:** ✅/❌
 
-## 🔌 3. Endpoint: POST /review
+## 🔌 10. Endpoint: POST /review
 
 ### 3.1. Позитивный тест: промпт хорошего качества
 **Input:** ...
@@ -425,7 +425,7 @@ api/
 **Expected Output:** is_prompt=false, reason, conversion_options
 **Status:** ✅/❌
 
-## 🧪 4. Граничные случаи
+## 🧪 11. Граничные случаи
 
 ### 4.1. Пустой текст
 **Input:** prompt_text=""
@@ -442,7 +442,7 @@ api/
 **Expected Output:** 200 OK
 **Status:** ✅/❌
 
-## ❗ 5. Обработка ошибок
+## ❗ 12. Обработка ошибок
 
 ### 5.1. Отсутствует обязательное поле user_id
 **Expected Output:** 400 Bad Request, validation_error
@@ -472,7 +472,7 @@ api/
 
 ---
 
-## 🖥️ Этап 6: Telegram Bot UI
+## 🖥️ 13. Этап 6: Telegram Bot UI
 
 ### 6.1 Цель
 
@@ -504,7 +504,7 @@ api/
     └── README.md
 ```
 
-**bot.py — ключевые компоненты:**
+**bot.py — компоненты:**
 
 ```python
 from aiogram import Bot, Dispatcher, types
@@ -551,7 +551,7 @@ async def handle_message(message: types.Message):
 
 ---
 
-## 🖥️ Этап 7: Web UI
+## 🖥️ 14. Этап 7: Web UI
 
 ### 7.1 Цель
 
@@ -624,7 +624,7 @@ api/
 
 ---
 
-## 📚 Этап 8: Документация и публикация
+## 📚 15. Этап 8: Документация и публикация
 
 ### 8.1 Цель
 
@@ -797,9 +797,9 @@ MAX_PROMPT_LENGTH=10000
 
 ---
 
-## 📋 Сводная таблица этапов
+## 📋 16. Сводная таблица этапов
 
-| Этап | Название | Зависимости | Ключевые артефакты |
+| Этап | Название | Зависимости | Артефакты |
 |------|----------|--------------|-------------------|
 | 1 | Структура проекта | Нет | `api/`, `requirements.txt`, `README.md` |
 | 2 | Pydantic-модели | 1 | `schemas.py` |
@@ -814,7 +814,7 @@ MAX_PROMPT_LENGTH=10000
 
 ---
 
-## ⚠️ Риски и митигация
+## ⚠️ 17. Риски и митигация
 
 | Риск | Вероятность | Влияние | Митигация |
 |------|-------------|---------|-----------|
@@ -825,7 +825,7 @@ MAX_PROMPT_LENGTH=10000
 
 ---
 
-## ✅ Определение готовности (Definition of Done)
+## ✅ 18. Определение готовности (Definition of Done)
 
 Проект v4 считается завершённым при выполнении:
 
@@ -842,7 +842,7 @@ MAX_PROMPT_LENGTH=10000
 
 ---
 
-## 🚀 Следующие шаги после завершения
+## 🚀 19. Следующие шаги после завершения
 
 | Приоритет | Задача |
 |-----------|--------|
@@ -850,3 +850,9 @@ MAX_PROMPT_LENGTH=10000
 | P2 | Мониторинг и логирование (Prometheus, Grafana) |
 | P3 | CI/CD pipeline |
 | P4 | Расширение функциональности (batch processing, async) |
+
+---
+
+**Статус:** план выполнен (этапы 1–8 закрыты)
+**Последнее обновление:** 2026-09-16
+**История изменений:** [📝 CHANGE_LOG.md](CHANGE_LOG.md#-1-история-изменений-документации)

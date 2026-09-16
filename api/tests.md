@@ -6,7 +6,7 @@
 
 ---
 
-## 1. Endpoint: GET /
+## 🔌 1. Endpoint: GET /
 
 ### 1.1. Корневой endpoint
 
@@ -26,7 +26,7 @@ GET /
 
 ---
 
-## 2. Endpoint: GET /health
+## 🔌 2. Endpoint: GET /health
 
 ### 2.1. Health check
 
@@ -48,7 +48,7 @@ GET /health
 
 ---
 
-## 3. Endpoint: POST /review
+## 🔌 3. Endpoint: POST /review
 
 ### 3.1. Позитивный тест: корректный промпт
 
@@ -211,7 +211,7 @@ Content-Type: application/json
 
 ---
 
-## 4. Граничные случаи
+## 🧪 4. Граничные случаи
 
 ### 4.1. Пустой текст (min_length violation)
 
@@ -285,7 +285,7 @@ Content-Type: application/json
 
 ---
 
-## 5. Обработка ошибок
+## ❗ 5. Обработка ошибок
 
 ### 5.1. Некорректный JSON
 
@@ -379,7 +379,7 @@ Content-Type: application/json
 
 ---
 
-## 6. Swagger UI и OpenAPI
+## 🖥️ 6. Swagger UI и OpenAPI
 
 ### 6.1. Swagger UI
 
@@ -418,7 +418,7 @@ Content-Type: application/json
 
 ---
 
-## 7. JSON-контракт
+## 🗄️ 7. JSON-контракт
 
 ### 7.1. Совместимость с SPEC.md
 
@@ -451,7 +451,7 @@ Content-Type: application/json
 
 ---
 
-## 8. Health Check
+## ⚡ 8. Health Check
 
 ### 8.1. Проверка backend_available
 
@@ -482,7 +482,7 @@ GET /health
 
 ---
 
-## 9. Логирование
+## 📜 9. Логирование
 
 ### 9.1. Структурированное логирование (JSON)
 
@@ -502,7 +502,7 @@ GET /health
 
 ---
 
-## 10. Производительность
+## ⏱️ 10. Производительность
 
 ### 10.1. Время обработки
 
@@ -517,7 +517,7 @@ GET /health
 
 ---
 
-## Итоговая таблица тестов
+## 📊 11. Итоговая таблица тестов
 
 | # | Тест | Статус |
 |---|------|--------|
@@ -542,7 +542,7 @@ GET /health
 
 ---
 
-## Рекомендации
+## 💡 12. Рекомендации
 
 1. **Тестирование с LangFlow:** Необходимо протестировать с `BACKEND_TYPE=langflow` при наличии доступного LangFlow сервера.
 
@@ -557,7 +557,7 @@ GET /health
 
 ---
 
-## 11. Дополнительное тестирование: LangFlowAdapter
+## 🧪 13. Дополнительное тестирование: LangFlowAdapter
 
 **Дата тестирования:** 2026-07-05
 **Backend:** LangFlow (https://langflow.alex-n8n.site)
@@ -839,7 +839,7 @@ class Config:
 **Тестирование LangFlowAdapter завершено:** 2026-07-05
 ---
 
-## 12. Дополнительное тестирование: Demo Limiter (DEMO_MODE=true)
+## 🧪 14. Дополнительное тестирование: Demo Limiter (DEMO_MODE=true)
 
 **Дата тестирования:** 2026-08-30
 **Конфигурация:** `DEMO_MODE=true`, `DEMO_MAX_REQUESTS_PER_SESSION=2`, `DEMO_MIN_REQUEST_INTERVAL_SECONDS=0`
@@ -866,7 +866,7 @@ class Config:
 
 ---
 
-## 13. Дополнительное тестирование: Retry и учёт токенов (P3)
+## 🧪 15. Дополнительное тестирование: Retry и учёт токенов (P3)
 
 **Дата:** 2026-08-30
 **Скоп:**retry-конфигурация `LangChainAdapter` + поле `token_usage` в `/review` + `tokens_*` в структурных логах.
@@ -889,7 +889,7 @@ class Config:
 
 ---
 
-## 14. Дополнительное тестирование: Вынос Pipeline Service (P5)
+## 🧪 16. Дополнительное тестирование: Вынос Pipeline Service (P5)
 
 **Дата:** 2026-08-30
 **Скоп:** вынос `PromptReviewPipeline` в отдельный HTTP-сервис (`api/pipeline_service/`) + режим `BACKEND_TYPE=langchain_service`.
@@ -928,3 +928,9 @@ class Config:
 **Примечание:** на коротких промптах оценки колеблются ±1–2 балла от запуска к запуску (свойство LLM, не бэкенда); систематическая жёсткость рубрики на коротких формулировках — кандидат в калибровку `REVIEW_PROMPT` (P2, отложена).
 
 **Итог:** Pipeline Service подтверждён на живом инстансе; новое поведение идентично прежнему.
+
+---
+
+**Статус:** протокол прогонов демо v4
+**Последнее обновление:** 2026-09-16
+**История изменений:** [📝 CHANGE_LOG.md](../docs/CHANGE_LOG.md#-1-история-изменений-документации)

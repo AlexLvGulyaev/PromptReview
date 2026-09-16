@@ -49,3 +49,8 @@ docs/DEPLOYMENT_VALIDATION_REPORT.md
 # Local reports / generated drafts
 *.tmp
 ~$*
+
+# ============================================================
+# Internal narrative blueprint (APL)
+# ============================================================
+docs/NARRATIVE_BLUEPRINT.md

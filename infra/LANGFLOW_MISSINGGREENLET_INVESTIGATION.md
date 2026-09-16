@@ -8,7 +8,7 @@
 
 ---
 
-## 1. Описание симптома
+## 🚨 1. Описание симптома
 
 ### Наблюдаемая ошибка
 
@@ -38,7 +38,7 @@ Failed to initialize MCP servers: greenlet_spawn has not been called
 
 ---
 
-## 2. Фактическая конфигурация
+## ⚙️ 2. Фактическая конфигурация
 
 ### 2.1 Переменные окружения
 
@@ -88,7 +88,7 @@ asyncpg      — NOT SUPPORTED (LangFlow не поддерживает asyncpg)
 
 ---
 
-## 3. Вторичная ошибка: Fernet Key
+## 🚨 3. Вторичная ошибка: Fernet Key
 
 ### Обнаруженная проблема
 
@@ -126,7 +126,7 @@ LANGFLOW_SECRET_KEY=<LEAKED_KEY_MASKED_28-08-2026>
 
 ---
 
-## 4. Версии зависимостей
+## 📄 4. Версии зависимостей
 
 ### Python 3.14 — Experimental
 
@@ -151,7 +151,7 @@ LangFlow 1.10.1 работает на Python 3.14.6 (experimental):
 
 ---
 
-## 5. Известные issues
+## 🔍 5. Известные issues
 
 ### 5.1 Issue #5495: MissingGreenlet с MySQL/PostgreSQL async
 
@@ -185,7 +185,7 @@ LangFlow 1.10.1 работает на Python 3.14.6 (experimental):
 
 ---
 
-## 6. Анализ кода LangFlow
+## 🔍 6. Анализ кода LangFlow
 
 ### 6.1 Инициализация MCP серверов
 
@@ -238,7 +238,7 @@ self.async_session_maker = async_sessionmaker(
 
 ---
 
-## 7. Проверенные гипотезы
+## 🧪 7. Проверенные гипотезы
 
 ### Гипотеза 1: Некорректный Fernet Key (ПОДТВЕРЖДЕНА)
 
@@ -292,7 +292,7 @@ greenlet._C_API       # <capsule object> ✅
 
 ---
 
-## 8. Вывод о наиболее вероятной причине
+## 💡 8. Вывод о наиболее вероятной причине
 
 ### Первичная причина
 
@@ -308,7 +308,7 @@ greenlet._C_API       # <capsule object> ✅
 
 ---
 
-## 9. Безопасный план исправления
+## 🔧 9. Безопасный план исправления
 
 ### Шаг 1: Исправить LANGFLOW_SECRET_KEY
 
@@ -351,7 +351,7 @@ docker logs prompt-review-langflow -f
 
 ---
 
-## 10. Источники
+## 📚 10. Источники
 
 - [Issue #5495 — MissingGreenlet с MySQL](https://github.com/langflow-ai/langflow/issues/5495)
 - [PR #6258 — Use Alembic with async driver](https://github.com/langflow-ai/langflow/pull/6258)
@@ -367,7 +367,7 @@ docker logs prompt-review-langflow -f
 
 ---
 
-## 12. Экспериментальная проверка
+## 🧪 11. Экспериментальная проверка
 
 **Дата:** 2026-07-04  
 **Статус:** ЗАВЕРШЕНО
@@ -458,7 +458,7 @@ docker logs prompt-review-langflow 2>&1 | grep -c "Fernet key must be"
 
 ---
 
-## 13. Финальные рекомендации
+## ✅ 12. Финальные рекомендации
 
 ### Для текущего deployment
 
@@ -490,6 +490,12 @@ LANGFLOW_SECRET_KEY=<FERNET_KEY_MASKED_28-08-2026>=
 
 ---
 
-## 14. Изменённые файлы
+## 🗂️ 13. Изменённые файлы
 
 - **Обновлён:** `infra/.env` — `LANGFLOW_SECRET_KEY` заменён на корректный Fernet key
+
+---
+
+**Статус:** расследование закрыто (обход greenlet применён)
+**Последнее обновление:** 2026-09-16
+**История изменений:** [📝 CHANGE_LOG.md](../docs/CHANGE_LOG.md#-1-история-изменений-документации)

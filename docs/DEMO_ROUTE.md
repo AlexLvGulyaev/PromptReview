@@ -3,7 +3,7 @@
 Как быстро убедиться, что аудит промптов работает: вставить свой
 промпт и проследить путь от оценки до улучшенной редакции.
 
-## Маршрут проверки
+## 🧭 1. Маршрут проверки
 
 1. **Открыть** [Live demo](https://prompt-review-demo.alex-n8n.site) →
    **вставить** свой промпт в веб-форму → **дождаться** результата
@@ -22,7 +22,7 @@
    **увидеть**, что сервис отделяет промпт от обычного текста и
    обрабатывает их по-разному.
 
-## Что ещё доступно
+## 📚 2. Что ещё доступно
 
 - Три канала с одним контрактом ответа: Web UI, Telegram-бот
   ([@OptimusPromptReview_bot](https://t.me/OptimusPromptReview_bot)),
@@ -33,3 +33,9 @@
   [SYSTEM_DEMO.md](https://github.com/AlexLvGulyaev/PromptReview/blob/main/docs/SYSTEM_DEMO.md)).
 - Разбор всех 8 критериев с примерами:
   [USER_GUIDE.md](https://github.com/AlexLvGulyaev/PromptReview/blob/main/docs/USER_GUIDE.md).
+
+---
+
+**Статус:** актуален
+**Последнее обновление:** 2026-09-16
+**История изменений:** [📝 CHANGE_LOG.md](CHANGE_LOG.md#-1-история-изменений-документации)

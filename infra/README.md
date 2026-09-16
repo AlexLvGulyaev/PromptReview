@@ -2,11 +2,11 @@
 
 Инфраструктурные конфигурации для Prompt Review Service.
 
-## Статус
+## 📊 1. Статус
 
 **LangFlow, FastAPI и Telegram Bot развёрнуты и работают.**
 
-## Развернутые компоненты
+## 🗂️ 2. Развернутые компоненты
 
 | Компонент | Контейнер | Статус |
 |-----------|-----------|--------|
@@ -15,7 +15,7 @@
 | FastAPI API | `prompt-review-api` | Работает |
 | Telegram Bot | `prompt-review-telegram` | Работает |
 
-## Компоненты
+## 🧩 3. Компоненты
 
 ### LangFlow
 
@@ -41,7 +41,7 @@
 - **Commands:** `/start`, `/help`
 - **Usage:** Отправьте текст для анализа качества промпта
 
-## Файлы
+## 📄 4. Файлы
 
 | Файл | Назначение |
 |------|------------|
@@ -54,21 +54,21 @@
 | `.env` | Реальные секреты (не в Git) |
 | `.gitignore` | Исключения для Git |
 
-## Переменные окружения
+## 🔧 5. Переменные окружения
 
 Созданы безопасные значения для:
 - `POSTGRES_PASSWORD` — пароль PostgreSQL
 - `LANGFLOW_SECRET_KEY` — секретный ключ JWT
 - `LANGFLOW_AUTO_LOGIN=False` — аутентификация включена
 
-## Сети
+## 🌐 6. Сети
 
 | Сеть | Назначение |
 |------|------------|
 | `langflow-network` | Внутренняя сеть LangFlow ↔ PostgreSQL |
 | `n8n_default` | Сеть Traefik для публикации |
 
-## Маршрутизация
+## 🧭 7. Маршрутизация
 
 Маршрут добавлен в `/opt/n8n/dynamic.yml`:
 
@@ -89,7 +89,7 @@ services:
         - url: "http://prompt-review-langflow:7860"
 ```
 
-## Ollama
+## 🤖 8. Ollama
 
 LangFlow подключается к Ollama через `host.docker.internal:11434`.
 
@@ -99,7 +99,7 @@ LangFlow подключается к Ollama через `host.docker.internal:114
 
 ---
 
-## FastAPI → LangFlow Integration
+## 🔌 9. FastAPI → LangFlow Integration
 
 Для работы FastAPI с LangFlow backend требуются переменные окружения:
 
@@ -131,7 +131,7 @@ LangFlow подключается к Ollama через `host.docker.internal:114
 
 ---
 
-## Следующие шаги
+## 🚀 10. Следующие шаги
 
 1. ~~Создать Prompt Review Flow в LangFlow UI~~ ✅ Готово
 2. ~~Настроить Ollama-компонент в Flow~~ ✅ Готово
@@ -143,7 +143,7 @@ LangFlow подключается к Ollama через `host.docker.internal:114
 
 ---
 
-## Развёртывание FastAPI
+## 🚀 11. Развёртывание FastAPI
 
 ### Предварительные требования
 
@@ -223,7 +223,7 @@ open http://localhost:8000/ui
 
 ---
 
-## Развёртывание Telegram Bot
+## 🚀 12. Развёртывание Telegram Bot
 
 ### Запуск
 
@@ -265,7 +265,7 @@ docker logs prompt-review-telegram --tail 20
 
 ---
 
-## Безопасность
+## 🔐 13. Безопасность
 
 ### CORS
 
@@ -294,7 +294,7 @@ Telegram Bot работает через server-to-server и не требует
 
 ---
 
-## Мониторинг
+## 📊 14. Мониторинг
 
 ### Health Checks
 
@@ -327,3 +327,9 @@ FastAPI использует структурированное JSON-логир�
 ```
 
 **Важно:** Полный текст промпта не логируется (только длина).
+
+---
+
+**Статус:** актуален; LangFlow развёрнут на VPS
+**Последнее обновление:** 2026-09-16
+**История изменений:** [📝 CHANGE_LOG.md](../docs/CHANGE_LOG.md#-1-история-изменений-документации)

@@ -28,7 +28,7 @@
 
 ---
 
-## 🔌 Endpoint: GET /
+## 🔌 2. Endpoint: GET /
 
 ### Описание
 
@@ -46,7 +46,7 @@
 
 ---
 
-## 🔌 Endpoint: GET /health
+## 🔌 3. Endpoint: GET /health
 
 ### Описание
 
@@ -76,7 +76,7 @@ Health check для мониторинга доступности сервиса
 
 ---
 
-## 🔌 Endpoint: POST /review
+## 🔌 4. Endpoint: POST /review
 
 ### Запрос: PromptReviewRequest
 
@@ -306,7 +306,7 @@ class PromptMetrics(BaseModel):
 
 ---
 
-## 🔌 Endpoint: POST /demo/start
+## 🔌 5. Endpoint: POST /demo/start
 
 Создаёт новую демо-сессию для Web UI. Доступен только при `DEMO_MODE=true`
 (иначе — **403** `demo_mode_disabled`).
@@ -338,7 +338,7 @@ class PromptMetrics(BaseModel):
 
 ---
 
-## 🔌 Endpoint: GET /demo/status
+## 🔌 6. Endpoint: GET /demo/status
 
 Состояние демо-сессии (без списания квоты). Доступен только при `DEMO_MODE=true`.
 
@@ -367,7 +367,7 @@ class PromptMetrics(BaseModel):
 
 ---
 
-## 📄 Примеры запросов и ответов
+## 📄 7. Примеры запросов и ответов
 
 
 ### Пример 1: Промпт (is_prompt = true)
@@ -515,7 +515,7 @@ class PromptMetrics(BaseModel):
 
 ---
 
-## ❗ 2. Обработка ошибок
+## ❗ 8. Обработка ошибок
 
 ### ErrorResponse
 
@@ -563,7 +563,7 @@ class ErrorResponse(BaseModel):
 
 ---
 
-## 🔀 3. Ветвление ответа
+## 🔀 9. Ветвление ответа
 
 ### Примеры ответов
 
@@ -625,7 +625,7 @@ if is_prompt == false:
 
 ---
 
-## ✅ 4. Соответствие overall и quality_level
+## ✅ 10. Соответствие overall и quality_level
 
 **Source of Truth для всех реализаций (LangFlow, LangChain, n8n).**
 
@@ -681,7 +681,7 @@ else:
 
 ---
 
-## ↩️ 5. Обратная совместимость
+## ↩️ 11. Обратная совместимость
 
 ### Принципы
 
@@ -704,7 +704,7 @@ else:
 
 ---
 
-## 📌 6. Источники истины
+## 📌 12. Источники истины
 
 | Компонент | SOT | Назначение |
 |-----------|-----|------------|
@@ -715,8 +715,14 @@ else:
 
 ---
 
-## 🔗 7. Связанные документы
+## 🔗 13. Связанные документы
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) — архитектура системы
 - [SPEC.md](SPEC.md) — продуктовая спецификация
 - [README.md](../README.md) — публичное описание проекта
+
+---
+
+**Статус:** актуален; SOT контракта API
+**Последнее обновление:** 2026-09-16
+**История изменений:** [📝 CHANGE_LOG.md](CHANGE_LOG.md#-1-история-изменений-документации)

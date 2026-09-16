@@ -6,7 +6,7 @@
 
 ---
 
-## 1. Официально рекомендуемый способ развёртывания
+## 🚀 1. Официально рекомендуемый способ развёртывания
 
 ### Варианты установки
 
@@ -25,7 +25,7 @@
 
 ---
 
-## 2. Поддерживаемые Docker-образы
+## 🐋 2. Поддерживаемые Docker-образы
 
 | Образ | Назначение | Источник |
 |-------|-----------|----------|
@@ -42,7 +42,7 @@
 
 ---
 
-## 3. Способы хранения данных
+## 🗄️ 3. Способы хранения данных
 
 ### SQLite
 
@@ -76,7 +76,7 @@ LANGFLOW_DATABASE_URL=postgresql://user:password@host:5432/langflow
 
 ---
 
-## 4. Переменные окружения
+## 🔧 4. Переменные окружения
 
 ### Категории переменных
 
@@ -88,7 +88,7 @@ LANGFLOW_DATABASE_URL=postgresql://user:password@host:5432/langflow
 | API | `LANGFLOW_API_KEY_SOURCE`, `LANGFLOW_REMOVE_API_KEYS` |
 | SSL | `LANGFLOW_SSL_CERT_FILE`, `LANGFLOW_SSL_KEY_FILE` |
 
-### Ключевые переменные
+### Переменные
 
 | Переменная | По умолчанию | Описание | Обязательная |
 |-----------|--------------|----------|--------------|
@@ -104,7 +104,7 @@ LANGFLOW_DATABASE_URL=postgresql://user:password@host:5432/langflow
 
 ---
 
-## 5. Официальная структура Docker Compose
+## 🐋 5. Официальная структура Docker Compose
 
 ### Минимальная конфигурация
 
@@ -153,13 +153,13 @@ volumes:
 
 ---
 
-## 6. Работа за reverse proxy
+## 🧭 6. Работа за reverse proxy
 
 ### Nginx
 
 **Официальная документация:** [docs.langflow.org/deployment-nginx-ssl](https://docs.langflow.org/deployment-nginx-ssl)
 
-**Ключевые настройки:**
+**Настройки:**
 
 ```nginx
 server {
@@ -219,7 +219,7 @@ traefik.http.routers.frontend-http.rule=PathPrefix(`/`)
 
 ---
 
-## 7. HTTPS
+## 🔐 7. HTTPS
 
 ### Требования LangFlow
 
@@ -238,7 +238,7 @@ HTTPS полностью остаётся задачей reverse proxy (Nginx, T
 
 ---
 
-## 8. API
+## 🔌 8. API
 
 ### Аутентификация
 
@@ -303,7 +303,7 @@ curl -X POST \
 
 ---
 
-## 9. Health Check
+## ⚡ 9. Health Check
 
 ### `/health_check` (Рекомендуется)
 
@@ -353,7 +353,7 @@ readinessProbe:
 
 ---
 
-## 10. Работа с Ollama
+## 🤖 10. Работа с Ollama
 
 ### Конфигурация подключения
 
@@ -388,7 +388,7 @@ readinessProbe:
 
 ---
 
-## 11. Безопасность
+## 🔐 11. Безопасность
 
 ### Аутентификация
 
@@ -448,7 +448,7 @@ LANGFLOW_CORS_ORIGINS=["https://yourdomain.com","https://app.yourdomain.com"]
 
 ---
 
-## 12. Отсутствующая информация
+## ❓ 12. Отсутствующая информация
 
 ### Traefik-специфичные рекомендации
 
@@ -467,7 +467,7 @@ LANGFLOW_CORS_ORIGINS=["https://yourdomain.com","https://app.yourdomain.com"]
 
 ---
 
-## Источники
+## 📚 13. Источники
 
 1. [LangFlow Docker Deployment](https://docs.langflow.org/deployment-docker)
 2. [LangFlow Environment Variables](https://docs.langflow.org/environment-variables)
@@ -483,3 +483,9 @@ LANGFLOW_CORS_ORIGINS=["https://yourdomain.com","https://app.yourdomain.com"]
 ---
 
 **Статус:** Исследование завершено. Все сведения подтверждены официальной документацией LangFlow.
+
+---
+
+**Статус:** исследование завершено
+**Последнее обновление:** 2026-09-16
+**История изменений:** [📝 CHANGE_LOG.md](../docs/CHANGE_LOG.md#-1-история-изменений-документации)

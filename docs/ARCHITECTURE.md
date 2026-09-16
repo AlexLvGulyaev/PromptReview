@@ -12,7 +12,7 @@ Prompt Review Service — AI-сервис для анализа качества
 
 ### Эволюция проекта
 
-| Этап | Технология | Ключевое достижение | Статус |
+| Этап | Технология | Достижение | Статус |
 |------|------------|----------------------|--------|
 | **v1** | LangFlow | MVP Prompt Review Agent | ✅ Прототип |
 | **v2** | LangChain | Chain + AgentExecutor + Tool | ✅ Прототип |
@@ -775,3 +775,9 @@ OLLAMA_MODEL=gemma2:9b
 | **LangChain** | [langchain/README.md](../langchain/README.md) | Реализация v2, Chain/AgentExecutor |
 | **n8n Integration** | [n8n/README.md](../n8n/README.md) | Сценарии v3, интеграции |
 | **Инфраструктура** | [infra/README.md](../infra/README.md) | Docker, конфигурации |
+
+---
+
+**Статус:** актуальна для v4 (LangChain основной, LangFlow фоллбэк)
+**Последнее обновление:** 2026-09-16
+**История изменений:** [📝 CHANGE_LOG.md](CHANGE_LOG.md#-1-история-изменений-документации)

@@ -2,11 +2,11 @@
 
 FastAPI API-слой для Prompt Review Service.
 
-## Назначение
+## 🎯 1. Назначение
 
 Публичный HTTP API для анализа качества промптов. Сервис принимает текст, определяет, является ли он промптом для LLM, и выполняет структурированный анализ с оценками, рекомендациями и улучшенной редакцией.
 
-## Архитектура
+## 🏗️ 2. Архитектура
 
 ```
 Telegram / Web / n8n / CLI
@@ -20,7 +20,7 @@ LangFlow или LangChain backend
 
 **Принцип:** FastAPI не содержит бизнес-логику Prompt Review. Вся работа с Prompt Review Engine выполняется через BackendAdapter.
 
-## Структура
+## 🗂️ 3. Структура
 
 ```
 api/
@@ -48,7 +48,7 @@ api/
 └── README.md
 ```
 
-## Endpoints
+## 🔌 4. Endpoints
 
 | Endpoint | Method | Описание |
 |----------|--------|----------|
@@ -58,7 +58,7 @@ api/
 | `/demo/start` | POST | Новая демо-сессия (только при `DEMO_MODE=true`) |
 | `/demo/status` | GET | Состояние демо-сессии (только при `DEMO_MODE=true`) |
 
-## Запуск локально
+## 🚀 5. Запуск локально
 
 ```bash
 cd api
@@ -77,7 +77,7 @@ export LANGFLOW_API_KEY=your_api_key
 uvicorn app.main:app --reload
 ```
 
-## Переменные окружения
+## 🔧 6. Переменные окружения
 
 | Переменная | Описание | Обязательно |
 |------------|----------|-------------|
@@ -94,7 +94,7 @@ uvicorn app.main:app --reload
 | `MAX_PROMPT_LENGTH` | Максимальная длина промпта | Нет (default: 10000) |
 | `RETRY_MAX_ATTEMPTS` | Повторные попытки LLM-вызова при временных ошибках (сеть/429/5xx); таймаут делится на попытки | Нет (default: 2) |
 
-## Примеры запросов
+## 📄 7. Примеры запросов
 
 ### POST /review
 
@@ -149,13 +149,13 @@ curl -X POST http://localhost:8000/review \
 }
 ```
 
-## Swagger UI
+## 🖥️ 8. Swagger UI
 
 После запуска доступна интерактивная документация:
 - http://localhost:8000/docs — Swagger UI
 - http://localhost:8000/redoc — ReDoc
 
-## Backend-адаптеры
+## 🧩 9. Backend-адаптеры
 
 ### LangFlow Adapter
 
@@ -197,7 +197,7 @@ FastAPI → LangChainAdapter → PromptReviewPipeline → LLM → JSON Response
 - **in-process** (`BACKEND_TYPE=langchain`) — LLM-вызовы в процессе API (по умолчанию);
 - **вынесенный сервис** (`BACKEND_TYPE=langchain_service`) — LLM-вызовы в отдельном контейнере `pipeline_service/` (опционально, см. `pipeline_service/README.md`).
 
-## Переменные окружения для LangChain
+## 🔧 10. Переменные окружения для LangChain
 
 | Переменная | Описание | Обязательно |
 |------------|----------|-------------|
@@ -205,3 +205,9 @@ FastAPI → LangChainAdapter → PromptReviewPipeline → LLM → JSON Response
 | `OPENAI_API_KEY` | API ключ OpenAI | Для openai |
 | `OLLAMA_BASE_URL` | URL Ollama сервера | Для ollama (default: http://localhost:11434) |
 | `OLLAMA_MODEL` | Модель Ollama | Для ollama (default: gemma2:9b) |
+
+---
+
+**Статус:** актуален (v4, langflow в проде)
+**Последнее обновление:** 2026-09-16
+**История изменений:** [📝 CHANGE_LOG.md](../docs/CHANGE_LOG.md#-1-история-изменений-документации)
