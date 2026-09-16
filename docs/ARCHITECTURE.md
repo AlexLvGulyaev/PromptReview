@@ -1,8 +1,6 @@
 # 🏗️ ARCHITECTURE.md — Prompt Review Service
 
-**Версия:** 1.0
-**Дата:** 2026-07-07
-**Статус:** Утверждено
+<img src="screenshots/PR-portfolio-dark.png" alt="Prompt Review Service — архитектурная витрина: конвейер анализа промпта под капотом (DARK)">
 
 ---
 

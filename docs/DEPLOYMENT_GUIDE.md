@@ -1,9 +1,5 @@
 # 🚀 DEPLOYMENT_GUIDE.md — Prompt Review Service
 
-**Версия:** 2.5
-**Дата:** 2026-08-30
-**Статус:** Инженерное руководство
-
 ---
 
 ## 🎯 1. Purpose

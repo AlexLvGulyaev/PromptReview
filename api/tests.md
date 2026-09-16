@@ -1,10 +1,9 @@
 # Тестовые сценарии Prompt Review Service
 
-**Дата тестирования:** 2026-07-05
-**Backend:** LangChain (OpenAI gpt-4o-mini)
-**Статус:** ✅ Все тесты пройдены
-
 ---
+
+**Backend прогонов:** LangChain (OpenAI gpt-4o-mini)
+
 
 ## 🔌 1. Endpoint: GET /
 

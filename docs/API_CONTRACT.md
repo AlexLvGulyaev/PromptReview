@@ -1,9 +1,5 @@
 # API_CONTRACT.md — Prompt Review Service API Contract
 
-**Версия:** 1.0.0
-**Дата:** 2026-07-07
-**Статус:** Утверждено
-
 ---
 
 ## 🎯 1. Назначение

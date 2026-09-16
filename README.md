@@ -1,5 +1,7 @@
 # 🔍 Prompt Review Service
 
+<img src="docs/screenshots/PR-portfolio-light.png" alt="Prompt Review Service — витрина кейса: анализ качества промптов через Web UI, Telegram-бота и REST API (LIGHT)">
+
 **AI-сервис для анализа качества промптов**
 
 Вы пишете промпт для LLM. Он работает не так, как вы ожидали. Вы тратите время на отладку, пробуете разные формулировки, но результат нестабилен. Почему?
