@@ -1,10 +1,5 @@
 # API Examples
 
-**Last Updated:** 2026-07-07
-**Project:** Prompt Review Service
-**Status:**
- Каталог примеров API-запросов и ответов
-
 ---
 
 ## 🎯 1. Обзор

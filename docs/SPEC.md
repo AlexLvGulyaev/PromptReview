@@ -32,54 +32,17 @@ Prompt Review Service — AI-сервис для анализа качества
 
 ### 3.1 Общая схема
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    User Interfaces                        │
-│         Telegram Bot │ Web Form │ n8n │ CLI               │
-└─────────────────────────┬───────────────────────────────┘
-                          │ HTTP POST
-                          ▼
-┌─────────────────────────────────────────────────────────┐
-│                    FastAPI Layer                          │
-│                                                           │
-│  GET  /           → {"status": "up"}                      │
-│  GET  /health     → {"status": "ok"}                     │
-│  POST /review     → PromptReviewResponse                  │
-│                                                           │
-└─────────────────────────┬───────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────┐
-│                Prompt Review Engine                       │
-│                                                           │
-│  1. extractInput        → извлечение текста              │
-│  2. collectPromptMetrics → расчёт метрик                  │
-│  3. classifyPrompt      → определение типа текста        │
-│  4. [if prompt]                                            │
-│       reviewPrompt      → анализ качества                 │
-│       rewritePrompt     → улучшенная редакция             │
-│     [else]                                                 │
-│       composeNotPrompt  → альтернативы                    │
-│  5. composeResult       → формирование JSON-ответа       │
-│                                                           │
-└─────────────────────────┬───────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────┐
-│                  Backend Adapters                         │
-│                                                           │
-│  LangFlow Adapter  │  LangChain Adapter                  │
-│  (HTTP to LangFlow) │ (Direct execution)                  │
-│                                                           │
-└─────────────────────────┬───────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────┐
-│                   LLM Runtime                             │
-│                                                           │
-│  OpenAI API  │  Ollama (local)                           │
-│                                                           │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    UI["User Interfaces<br/>Telegram Bot / Web Form / n8n / CLI"]
+
+    UI -->|HTTP POST| API["FastAPI Layer<br/>GET / → status: up<br/>GET /health → status: ok<br/>POST /review → PromptReviewResponse"]
+
+    API --> ENG["Prompt Review Engine<br/>1. extractInput — извлечение текста<br/>2. collectPromptMetrics — расчёт метрик<br/>3. classifyPrompt — определение типа текста<br/>4. if prompt: reviewPrompt — анализ качества, rewritePrompt — улучшенная редакция<br/>else: composeNotPrompt — альтернативы<br/>5. composeResult — формирование JSON-ответа"]
+
+    ENG --> ADP["Backend Adapters<br/>LangFlow Adapter — HTTP to LangFlow<br/>LangChain Adapter — Direct execution"]
+
+    ADP --> LLM["LLM Runtime<br/>OpenAI API / Ollama (local)"]
 ```
 
 ### 3.2 Backend-варианты

@@ -1,9 +1,5 @@
 # Media Index: Prompt Review Service
 
-**Last Updated:** 2026-07-07
-**Project:** Prompt Review Service
-**Status:** Каталог медиаматериалов для публичной документации
-
 ---
 
 ## 🎯 1. Обзор

@@ -1,8 +1,5 @@
 # 🎬 SYSTEM_DEMO.md — Prompt Review Service
 
-**Last Updated:** 2026-08-30
-**Основной читатель:** заказчик, инвестор, менеджер
-
 Документ демонстрирует сервис как работающий продукт: что нужно сделать пользователю и что он получает. Технические детали — в [ARCHITECTURE.md](ARCHITECTURE.md), развёртывание — в [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 
 ---
